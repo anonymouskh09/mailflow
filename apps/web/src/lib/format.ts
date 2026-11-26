@@ -59,3 +59,16 @@ export function initials(name: string): string {
   if (!parts.length) return '?';
   return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : '')).toUpperCase();
 }
+
+const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+/** Same plain-text → HTML rule the server uses for signatures (HTML is kept as is). */
+export function textToHtmlPreview(text: string): string {
+  if (/<[a-z][\s\S]*>/i.test(text)) return text.replace(/<(script|style|iframe)[\s\S]*?<\/\1>/gi, '').replace(/\son\w+=("[^"]*"|'[^']*')/gi, '');
+  return text
+    .split(/\n{2,}/)
+    .map((p) => `<p>${esc(p).replace(/\n/g, '<br>')}</p>`)
+    .join('');
+}
+
+/** "8–15 min" or "10 min" when both ends are equal. */
+export const gapText = (min: number, max: number) => (Number(min) === Number(max) ? `${min} min` : `${min}–${max} min`);

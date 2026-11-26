@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Play } from 'lucide-react';
+import { Pause, Play } from 'lucide-react';
 import { get, post, del, patch } from '@/lib/api';
 import { Page } from '@/components/Layout';
 import { Button, Menu, Modal, PageLoader, useToast, Field } from '@/components/ui';
@@ -9,11 +9,12 @@ import { CampaignHeader } from '@/components/campaign/CampaignHeader';
 import { SequenceTab } from '@/components/campaign/SequenceTab';
 import { LeadsTab } from '@/components/campaign/LeadsTab';
 import { SettingsTab } from '@/components/campaign/SettingsTab';
-import { fmt, timeAgo } from '@/lib/format';
+import { AnalyticsTab } from '@/components/campaign/AnalyticsTab';
+import { fmt, timeAgo, daysLabel } from '@/lib/format';
 import { cn } from '@/lib/cn';
 
-export default function CampaignEditor() {
-  const { id, tab = 'sequence' } = useParams();
+export default function CampaignPage() {
+  const { id, tab: tabParam } = useParams();
   const nav = useNavigate();
   const qc = useQueryClient();
   const toast = useToast();
@@ -28,6 +29,8 @@ export default function CampaignEditor() {
     return () => clearInterval(t);
   }, []);
   if (isLoading || !c) return <PageLoader />;
+  // Launched campaigns open on Analytics; drafts open on Leads (or Sequence once leads exist).
+  const tab = tabParam ?? (c.status === 'draft' ? (c.listLeads ? 'sequence' : 'leads') : 'analytics');
 
   const launch = async () => {
     setLaunching(true);
@@ -38,7 +41,7 @@ export default function CampaignEditor() {
       toast('Campaign launched');
       qc.invalidateQueries({ queryKey: ['campaigns'] });
       qc.invalidateQueries({ queryKey: ['campaign', id] });
-      nav(`/campaigns/${id}`);
+      nav(`/campaigns/${id}/analytics`);
     } catch (err: any) {
       setProblems(err.message.split('. ').filter(Boolean));
     } finally {
@@ -46,23 +49,33 @@ export default function CampaignEditor() {
     }
   };
   const tabs = [
+    { key: 'analytics', label: 'Analytics' },
     { key: 'leads', label: 'Leads', extra: fmt(c.listLeads) },
     { key: 'sequence', label: 'Sequence' },
     { key: 'settings', label: 'Settings' },
   ];
   const onSaved = (d: Date) => setSavedAt(d);
   const savedText = savedAt ? `Saved ${timeAgo(savedAt) === 'just now' ? 'just now' : timeAgo(savedAt)}` : `Saved ${timeAgo(c.updatedAt)}`;
+  const meta = tab === 'analytics' || tab === 'leads' ? `${c.steps.length} step${c.steps.length === 1 ? '' : 's'} · ${c.accountIds.length} account${c.accountIds.length === 1 ? '' : 's'} · ${daysLabel(c.days)} ${c.windowStart}–${c.windowEnd}` : savedText;
+  const togglePause = async () => {
+    try {
+      await post(`/api/campaigns/${id}/${c.status === 'active' ? 'pause' : 'resume'}`);
+      toast(c.status === 'active' ? 'Campaign paused' : 'Campaign resumed');
+      qc.invalidateQueries({ queryKey: ['campaign', id] });
+      qc.invalidateQueries({ queryKey: ['campaigns'] });
+    } catch (e: any) {
+      toast(e.message, 'error');
+    }
+  };
 
   return (
     <Page className="gap-4">
-      <CampaignHeader name={c.name} status={c.status} meta={savedText}>
+      <CampaignHeader name={c.name} status={c.status} meta={meta}>
         <Menu
           label="More campaign actions"
           items={[
-            { label: 'View report', hidden: c.status === 'draft', onClick: () => nav(`/campaigns/${id}`) },
             { label: 'Rename', onClick: () => setRenaming(c.name) },
-            { label: 'Pause', hidden: c.status !== 'active', onClick: async () => { await post(`/api/campaigns/${id}/pause`); qc.invalidateQueries({ queryKey: ['campaign', id] }); } },
-            { label: 'Duplicate', onClick: async () => { const r = await post(`/api/campaigns/${id}/duplicate`); nav(`/campaigns/${r.id}/edit/sequence`); } },
+            { label: 'Duplicate', onClick: async () => { const r = await post(`/api/campaigns/${id}/duplicate`); nav(`/campaigns/${r.id}/sequence`); } },
             { divider: true, label: '' },
             { label: 'Delete campaign', danger: true, onClick: async () => { if (confirm('Delete this campaign? This cannot be undone.')) { await del(`/api/campaigns/${id}`); qc.invalidateQueries({ queryKey: ['campaigns'] }); nav('/campaigns'); } } },
           ]}
@@ -73,8 +86,15 @@ export default function CampaignEditor() {
             Launch
           </Button>
         )}
+        {c.status === 'active' && (
+          <Button onClick={togglePause}>
+            <Pause className="h-4 w-4" fill="currentColor" aria-hidden />
+            Pause
+          </Button>
+        )}
         {c.status === 'paused' && (
-          <Button variant="primary" onClick={async () => { try { await post(`/api/campaigns/${id}/resume`); qc.invalidateQueries({ queryKey: ['campaign', id] }); toast('Resumed'); } catch (e: any) { toast(e.message, 'error'); } }}>
+          <Button variant="primary" onClick={togglePause}>
+            <Play className="h-4 w-4" fill="currentColor" aria-hidden />
             Resume
           </Button>
         )}
@@ -83,14 +103,15 @@ export default function CampaignEditor() {
         {tabs.map((t) => (
           <NavLink
             key={t.key}
-            to={`/campaigns/${id}/edit/${t.key}`}
-            className={({ isActive }) => cn('inline-flex h-11 items-center gap-1.5 border-b-2 px-1 text-sm font-medium', isActive || (t.key === 'sequence' && !tab) ? 'border-accent text-ink hover:text-ink' : 'border-transparent text-muted hover:text-ink')}
+            to={`/campaigns/${id}/${t.key}`}
+            className={() => cn('inline-flex h-11 items-center gap-1.5 border-b-2 px-1 text-sm font-medium', tab === t.key ? 'border-accent text-ink hover:text-ink' : 'border-transparent text-muted hover:text-ink')}
           >
             {t.label}
             {t.extra && <span className="font-normal text-muted">{t.extra}</span>}
           </NavLink>
         ))}
       </nav>
+      {tab === 'analytics' && <AnalyticsTab campaign={c} />}
       {tab === 'leads' && <LeadsTab campaign={c} />}
       {tab === 'sequence' && <SequenceTab key={c.id} campaign={c} onSaved={onSaved} />}
       {tab === 'settings' && <SettingsTab key={c.id} campaign={c} onSaved={onSaved} />}

@@ -90,6 +90,18 @@ describe('renderEmail', () => {
     expect(out.missing).toContain('company');
     expect(out.missing).not.toContain('firstName'); // body uses a fallback
   });
+  it('appends the signature automatically unless the body places it', () => {
+    const sender = { fromName: 'Ali Khan', email: 'ali@g.co', signatureHtml: '{{senderName}}\nAcme' };
+    const auto = renderEmail({ subject: 's', bodyHtml: '<p>Hi</p>', lead: {}, sender, appendSignature: true });
+    expect(auto.html).toContain('<p>Hi</p><div><p>Ali Khan<br>Acme</p></div>');
+    const placed = renderEmail({ subject: 's', bodyHtml: '<p>Hi</p><p>{{signature}}</p><p>PS</p>', lead: {}, sender, appendSignature: true });
+    expect(placed.html!.match(/Ali Khan/g)).toHaveLength(1);
+    expect(placed.html!.indexOf('Ali Khan')).toBeLessThan(placed.html!.indexOf('PS'));
+    const off = renderEmail({ subject: 's', bodyHtml: '<p>Hi</p>', lead: {}, sender, appendSignature: false });
+    expect(off.html).not.toContain('Ali Khan');
+    const none = renderEmail({ subject: 's', bodyHtml: '<p>Hi</p>', lead: {}, sender: { ...sender, signatureHtml: '' }, appendSignature: true });
+    expect(none.html).toBe('<div><p>Hi</p></div>');
+  });
   it('htmlToText keeps paragraphs', () => {
     expect(htmlToText('<p>a</p><p>b<br>c</p>')).toBe('a\n\nb\nc');
   });

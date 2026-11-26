@@ -252,6 +252,7 @@ model Campaign {
   stopOnDomainReply Boolean      @default(false) @map("stop_on_domain_reply")
   plainText       Boolean        @default(false) @map("plain_text")
   unsubscribeFooter Boolean      @default(true) @map("unsubscribe_footer")
+  autoSignature   Boolean        @default(true) @map("auto_signature") // append the account signature when the step has no {{signature}}
   launchedAt      DateTime?      @map("launched_at")
   completedAt     DateTime?      @map("completed_at")
   createdAt       DateTime       @default(now()) @map("created_at")

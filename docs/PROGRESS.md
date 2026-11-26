@@ -63,3 +63,11 @@ Newest entry last. Each phase is verified (typecheck, lint, tests, manual run ag
 1. Create the Google Cloud OAuth client (DEPLOY.md §6) and try Connect with Google with 2–3 real mailboxes.
 2. Deploy to a VPS with outbound 587 open, point `app.` and `track.` DNS at it, set SPF/DKIM/DMARC on sending domains.
 3. Let warmup run 2–3 weeks before the first real campaign.
+
+## Changes after phase 5 (owner requests)
+
+- Email account page has tabs: **Warmup · Settings · Campaigns**. Settings holds from name, daily limit, minimum gap, tags, connection status and, at the bottom, the **signature** with a live preview. Campaigns lists every campaign the email is connected to or has sent for (status, sent today / total, leads in progress, replies, last sent) plus recent activity (sent, opened, clicked, replied, bounced, unsubscribed). New endpoint `GET /api/accounts/:id/campaigns`.
+- The signature is now added automatically to every campaign email (new campaign option "Add signature", on by default; migration `campaign_auto_signature`). If a step contains `{{signature}}`, it is placed there instead.
+- Campaign page merged into one page with tabs **Analytics · Leads · Sequence · Settings**; launched campaigns open on Analytics (KPIs, daily chart for the campaign, by-step table, leads). Old `/campaigns/:id/edit/...` links redirect.
+- Sidebar: the overall analytics page is now **Dashboard**, at the bottom of the sidebar.
+- Campaign Settings starts with **Sending speed**: wait between emails (minutes, per account) and emails per day for the campaign, with an estimate.

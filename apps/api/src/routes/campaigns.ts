@@ -34,6 +34,7 @@ const settingsSchema = z.object({
   stopOnDomainReply: z.boolean().optional(),
   plainText: z.boolean().optional(),
   unsubscribeFooter: z.boolean().optional(),
+  autoSignature: z.boolean().optional(),
   listId: z.string().optional(),
 });
 

@@ -21,7 +21,7 @@ export function trackingUrls(base: string, token: string) {
 
 // ---------- rendering a campaign email ----------
 
-type CampaignLike = Pick<Campaign, 'trackOpens' | 'trackClicks' | 'plainText' | 'unsubscribeFooter'>;
+type CampaignLike = Pick<Campaign, 'trackOpens' | 'trackClicks' | 'plainText' | 'unsubscribeFooter'> & { autoSignature?: boolean };
 
 export function buildCampaignEmail(opts: {
   campaign: CampaignLike;
@@ -46,6 +46,7 @@ export function buildCampaignEmail(opts: {
     clickUrl: opts.campaign.trackClicks && !opts.campaign.plainText ? urls.click : undefined,
     unsubscribeFooter: opts.campaign.unsubscribeFooter,
     plainText: opts.campaign.plainText,
+    appendSignature: opts.campaign.autoSignature ?? true,
     rnd: opts.rnd,
   });
   const subject = isReply ? (opts.threadSubject ? (/^re:/i.test(opts.threadSubject) ? opts.threadSubject : `Re: ${opts.threadSubject}`) : 'Re:') : out.subject;

@@ -124,6 +124,8 @@ export interface RenderInput {
   clickUrl?: (url: string) => string; // set when click tracking is on
   unsubscribeFooter?: boolean;
   plainText?: boolean;
+  /** Append the sender's signature when the body does not place {{signature}} itself. */
+  appendSignature?: boolean;
   rnd?: () => number;
 }
 
@@ -146,7 +148,8 @@ export function renderEmail(input: RenderInput): RenderOutput {
     unsubscribeLink: input.unsubscribeUrl ?? '',
   };
   const subj = substitute(spin(input.subject, rnd), vars, { html: false });
-  const rawBody = spin(textToHtml(input.bodyHtml), rnd);
+  let rawBody = spin(textToHtml(input.bodyHtml), rnd);
+  if (input.appendSignature && input.sender.signatureHtml.trim() && !/\{\{\s*signature/i.test(rawBody)) rawBody += '<div>{{signature}}</div>';
   const usesUnsub = /\{\{\s*unsubscribeLink/i.test(rawBody);
   const body = substitute(rawBody, vars, { html: true, raw: ['signature', 'unsubscribeLink'] });
   const missing = [...new Set([...subj.missing, ...body.missing])].filter((m) => !['signature', 'unsubscribeLink'].includes(m));

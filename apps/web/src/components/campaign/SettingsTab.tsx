@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronDown } from 'lucide-react';
 import { get, patch, put } from '@/lib/api';
 import { Button, Field, Switch, useToast } from '@/components/ui';
-import { scoreColor, DAYS, fmt } from '@/lib/format';
+import { scoreColor, DAYS, fmt, gapText } from '@/lib/format';
 import { cn } from '@/lib/cn';
 
 export const TIMEZONES: string[] = (() => {
@@ -93,9 +93,41 @@ export function SettingsTab({ campaign, onSaved }: { campaign: any; onSaved: (at
     ['trackClicks', 'Click tracking', 'Routes links through your tracking domain'],
     ['stopOnReply', 'Stop on reply', 'Cancel remaining steps when a lead replies'],
     ['unsubscribeFooter', 'Unsubscribe link', 'Adds a footer and one-click unsubscribe header'],
+    ['autoSignature', 'Add signature', "Adds the sending account's signature at the end of every email"],
   ];
 
   return (
+    <div className="flex flex-col gap-4">
+      <section className="card flex flex-col gap-4 p-5">
+        <div>
+          <h2 className="h2">Sending speed</h2>
+          <p className="mb-0 mt-1 text-[13px] text-muted">How often this campaign sends and how many emails it may send each day. Changes apply from the next send.</p>
+        </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <span className="lbl">Wait between emails (each sending account)</span>
+            <div className="flex flex-wrap items-center gap-2">
+              <input className="inp w-[72px] text-center" inputMode="numeric" aria-label="Minimum minutes between emails" value={c.gapMin} onChange={(e) => set({ gapMin: Number(e.target.value.replace(/\D/g, '') || 0) })} />
+              <span className="text-muted">to</span>
+              <input className="inp w-[72px] text-center" inputMode="numeric" aria-label="Maximum minutes between emails" value={c.gapMax} onChange={(e) => set({ gapMax: Number(e.target.value.replace(/\D/g, '') || 0) })} />
+              <span className="text-sm text-muted">minutes (random each time)</span>
+            </div>
+            {Number(c.gapMax) < Number(c.gapMin) && <p className="mb-0 mt-1 text-xs text-[#B91C1C]">Maximum must be at least the minimum.</p>}
+            <p className="mb-0 mt-1 text-xs text-muted">If an account's own minimum gap is longer, that one is used.</p>
+          </div>
+          <Field label="Emails per day for this campaign" hint="Total across all its accounts. Each account's own daily limit still applies.">
+            <div className="relative">
+              <input className="inp pr-24" inputMode="numeric" value={c.dailyLimit} onChange={(e) => set({ dailyLimit: Number(e.target.value.replace(/\D/g, '') || 1) })} />
+              <span className="pointer-events-none absolute right-3 top-2.5 text-sm text-muted">emails / day</span>
+            </div>
+          </Field>
+        </div>
+        <div className="rounded-[10px] bg-ground px-3.5 py-3 text-[13px] leading-normal text-[#3F3F46]">
+          {est.count === 0
+            ? 'Select sending accounts below to see an estimate.'
+            : `Each account sends one email every ${gapText(c.gapMin, c.gapMax)}. About ${fmt(est.perDay)} emails a day with ${est.count} account${est.count === 1 ? '' : 's'}${est.sameCap ? ` (each capped at ${est.cap})` : ''}.${est.days !== null && est.leads ? ` All ${fmt(est.leads)} leads get Step 1 in about ${est.days} working day${est.days === 1 ? '' : 's'}.` : ''}`}
+        </div>
+      </section>
     <div className="flex flex-wrap items-start gap-4">
       <div className="flex min-w-0 flex-[1_1_440px] flex-col gap-4">
         <section className="card flex flex-col gap-3.5 p-5">
@@ -203,30 +235,6 @@ export function SettingsTab({ campaign, onSaved }: { campaign: any; onSaved: (at
       </div>
 
       <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-4">
-        <section className="card flex flex-col gap-3.5 p-5">
-          <h2 className="h2">Pacing</h2>
-          <div>
-            <span className="lbl">Time between emails (per account)</span>
-            <div className="flex items-center gap-2">
-              <input className="inp w-[72px] text-center" inputMode="numeric" aria-label="Minimum minutes" value={c.gapMin} onChange={(e) => set({ gapMin: Number(e.target.value.replace(/\D/g, '') || 0) })} />
-              <span className="text-muted">to</span>
-              <input className="inp w-[72px] text-center" inputMode="numeric" aria-label="Maximum minutes" value={c.gapMax} onChange={(e) => set({ gapMax: Number(e.target.value.replace(/\D/g, '') || 0) })} />
-              <span className="text-sm text-muted">minutes, random</span>
-            </div>
-            {Number(c.gapMax) < Number(c.gapMin) && <p className="mb-0 mt-1 text-xs text-[#B91C1C]">Maximum must be at least the minimum.</p>}
-          </div>
-          <Field label="Daily limit for this campaign">
-            <div className="relative">
-              <input className="inp pr-16" inputMode="numeric" value={c.dailyLimit} onChange={(e) => set({ dailyLimit: Number(e.target.value.replace(/\D/g, '') || 1) })} />
-              <span className="pointer-events-none absolute right-3 top-2.5 text-sm text-muted">emails</span>
-            </div>
-          </Field>
-          <div className="rounded-[10px] bg-ground px-3.5 py-3 text-[13px] leading-normal text-[#3F3F46]">
-            {est.count === 0
-              ? 'Select sending accounts to see an estimate.'
-              : `About ${fmt(est.perDay)} emails a day with ${est.count} account${est.count === 1 ? '' : 's'}${est.sameCap ? ` (each capped at ${est.cap})` : ''}.${est.days !== null && est.leads ? ` All ${fmt(est.leads)} leads get Step 1 in about ${est.days} working day${est.days === 1 ? '' : 's'}.` : ''}`}
-          </div>
-        </section>
 
         <section className="card flex flex-col p-5">
           <h2 className="h2 mb-1.5">Tracking &amp; rules</h2>
@@ -272,6 +280,7 @@ export function SettingsTab({ campaign, onSaved }: { campaign: any; onSaved: (at
           )}
         </section>
       </div>
+    </div>
     </div>
   );
 }

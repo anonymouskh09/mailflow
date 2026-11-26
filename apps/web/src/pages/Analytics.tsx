@@ -71,7 +71,7 @@ export default function Analytics() {
 
   return (
     <Page>
-      <PageHeader title="Analytics" subtitle={subtitle}>
+      <PageHeader title="Dashboard" subtitle={`Overall analytics · ${subtitle}`}>
         <Popover
           width={260}
           trigger={({ toggle, ref, open }) => (

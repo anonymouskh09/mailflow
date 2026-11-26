@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, NavLink, useNavigate, useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { ChevronLeft, X } from 'lucide-react';
 import { get, patch, post, del } from '@/lib/api';
 import { Page } from '@/components/Layout';
-import { Button, Field, Menu, PageLoader, StatusPill, Switch, useToast, Modal } from '@/components/ui';
-import { scoreColor, timeAgo, DAYS } from '@/lib/format';
+import { Button, Empty, Field, Menu, PageLoader, StatusPill, Switch, useToast, Modal } from '@/components/ui';
+import { scoreColor, timeAgo, DAYS, fmt, textToHtmlPreview, gapText } from '@/lib/format';
+import { cn } from '@/lib/cn';
 import { PROVIDER_LABEL } from './Accounts';
 
 function ScoreRing({ score }: { score: number | null }) {
@@ -22,16 +23,28 @@ function ScoreRing({ score }: { score: number | null }) {
   );
 }
 
+const ACTIVITY: Record<string, [string, string]> = {
+  sent: ['Sent', 'text-accent-dark'],
+  failed: ['Failed', 'text-[#B91C1C]'],
+  open: ['Opened', 'text-[#0369A1]'],
+  click: ['Clicked', 'text-[#0369A1]'],
+  reply: ['Replied', 'text-[#166534]'],
+  auto_reply: ['Auto-reply', 'text-[#92400E]'],
+  bounce: ['Bounced', 'text-[#B91C1C]'],
+  unsubscribe: ['Unsubscribed', 'text-[#92400E]'],
+};
+
 function Dot({ ok }: { ok: boolean | null | undefined }) {
   return <span className="h-2 w-2 flex-none rounded-full" style={{ background: ok === null || ok === undefined ? '#A1A1AA' : ok ? '#15803D' : '#B91C1C' }} aria-hidden />;
 }
 
 export default function AccountDetail() {
-  const { id } = useParams();
+  const { id, tab = 'warmup' } = useParams();
   const qc = useQueryClient();
   const toast = useToast();
   const nav = useNavigate();
   const { data, isLoading } = useQuery({ queryKey: ['accounts', id], queryFn: () => get(`/api/accounts/${id}`) });
+  const { data: usage } = useQuery({ queryKey: ['accounts', id, 'campaigns'], queryFn: () => get(`/api/accounts/${id}/campaigns`), refetchInterval: 30_000 });
   const [form, setForm] = useState<any>(null);
   const [w, setW] = useState<any>(null);
   const [tagDraft, setTagDraft] = useState<string | null>(null);
@@ -132,9 +145,11 @@ export default function AccountDetail() {
           <span className="flex-auto text-[13px] text-muted">
             {PROVIDER_LABEL[a.provider]} · {a.authType === 'google_oauth' ? 'connected with OAuth' : a.authType === 'google_dwd' ? 'connected via Workspace domain' : 'SMTP / IMAP password'}
           </span>
-          <Button variant="primary" loading={saving} onClick={save}>
-            Save changes
-          </Button>
+          {tab !== 'campaigns' && (
+            <Button variant="primary" loading={saving} onClick={save}>
+              Save changes
+            </Button>
+          )}
           <Menu
             label="More account actions"
             items={[
@@ -155,8 +170,25 @@ export default function AccountDetail() {
         )}
       </div>
 
-      <div className="flex flex-wrap items-start gap-4">
-        <div className="flex min-w-0 flex-[3_1_560px] flex-col gap-4">
+      <nav aria-label="Account sections" className="flex flex-wrap gap-6 border-b border-line">
+        {[
+          ['warmup', 'Warmup', ''],
+          ['settings', 'Settings', ''],
+          ['campaigns', 'Campaigns', usage ? String(usage.campaigns.length) : ''],
+        ].map(([key, label, extra]) => (
+          <NavLink
+            key={key}
+            to={`/accounts/${id}/${key}`}
+            className={() => cn('inline-flex h-11 items-center gap-1.5 border-b-2 px-1 text-sm font-medium', tab === key ? 'border-accent text-ink hover:text-ink' : 'border-transparent text-muted hover:text-ink')}
+          >
+            {label}
+            {extra && <span className="font-normal text-muted">{extra}</span>}
+          </NavLink>
+        ))}
+      </nav>
+
+      {tab === 'warmup' && (
+        <div className="flex flex-col gap-4">
           <section className="card p-5">
             <div className="mb-4 flex items-center gap-3">
               <h2 className="h2 flex-1">Warmup</h2>
@@ -264,10 +296,14 @@ export default function AccountDetail() {
             )}
           </section>
         </div>
+      )}
 
-        <div className="flex min-w-0 flex-[2_1_340px] flex-col gap-4">
+      {tab === 'settings' && (
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-wrap items-start gap-4">
+            <div className="flex min-w-0 flex-[3_1_480px] flex-col">
           <section className="card flex flex-col gap-3.5 p-5">
-            <h2 className="h2">Sending</h2>
+            <h2 className="h2">Sending settings</h2>
             <Field label="From name">
               <input className="inp" value={form.fromName} onChange={(e) => setForm({ ...form, fromName: e.target.value })} />
             </Field>
@@ -280,11 +316,8 @@ export default function AccountDetail() {
               </Field>
             </div>
             <p className="-mt-1 mb-0 text-xs text-muted">
-              Sent today: {a.sentToday} campaign + {a.warmupSentToday} warmup.
+              Daily limit = most campaign emails this account sends per day, across all campaigns. Min. gap = shortest wait between two campaign emails from this account (a campaign can only make it longer). Sent today: {a.sentToday} campaign + {a.warmupSentToday} warmup.
             </p>
-            <Field label="Signature" hint="Available in emails as {{signature}}.">
-              <textarea className="inp h-[84px] resize-y" value={form.signatureHtml} onChange={(e) => setForm({ ...form, signatureHtml: e.target.value })} />
-            </Field>
             <div>
               <span className="lbl">Tags</span>
               <div className="flex flex-wrap gap-1.5">
@@ -321,7 +354,8 @@ export default function AccountDetail() {
               </div>
             </div>
           </section>
-
+            </div>
+            <div className="flex min-w-0 flex-[2_1_320px] flex-col">
           <section className="card flex flex-col gap-2.5 p-5">
             <h2 className="h2">Connection</h2>
             {a.authType !== 'password' && (
@@ -350,8 +384,88 @@ export default function AccountDetail() {
               </p>
             )}
           </section>
+            </div>
+          </div>
+          <section className="card flex flex-col gap-3 p-5">
+            <div>
+              <h2 className="h2">Signature</h2>
+              <p className="mb-0 mt-1 text-[13px] text-muted">
+                Added at the end of every campaign email sent from this account, in every campaign. If a step already contains <span className="font-mono">{'{{signature}}'}</span>, it is placed there instead. Unibox replies can use it too. <span className="font-mono">{'{{senderName}}'}</span> inserts the from name.
+              </p>
+            </div>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Signature text">
+                <textarea className="inp resize-y" style={{ height: 128 }} value={form.signatureHtml} onChange={(e) => setForm({ ...form, signatureHtml: e.target.value })} placeholder={'{{senderName}}\nGrowth Lead, Acme\n+44 20 1234 5678'} />
+              </Field>
+              <div>
+                <span className="lbl">Preview</span>
+                <div className="mail-body rounded-lg border border-soft bg-ground px-3 py-2.5 text-sm text-[#3F3F46]" style={{ minHeight: 128 }} dangerouslySetInnerHTML={{ __html: form.signatureHtml.trim() ? textToHtmlPreview(form.signatureHtml.replace(/\{\{\s*senderName\s*\}\}/g, form.fromName)) : '<span style="color:#71717A">No signature yet</span>' }} />
+              </div>
+            </div>
+          </section>
         </div>
-      </div>
+      )}
+
+      {tab === 'campaigns' && (
+        <div className="flex flex-col gap-4">
+          <section className="card overflow-hidden">
+            <div className="px-4 pb-2 pt-4">
+              <h2 className="h2">Campaigns using this email</h2>
+              <p className="mb-0 mt-1 text-[13px] text-muted">Connected = selected as a sending account. Follow-ups keep going from this email for leads it already started, even if it is removed.</p>
+            </div>
+            {!usage ? (
+              <PageLoader />
+            ) : !usage.campaigns.length ? (
+              <Empty title="Not in any campaign yet">Select this email in a campaign's Settings tab, or use “Add to campaign” on the Email accounts page.</Empty>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="tbl">
+                  <thead>
+                    <tr><th>Campaign</th><th>Status</th><th>Connected</th><th>Sent today</th><th>Sent total</th><th>Leads in progress</th><th>Replies</th><th>Last sent</th></tr>
+                  </thead>
+                  <tbody>
+                    {usage.campaigns.map((c: any) => (
+                      <tr key={c.id}>
+                        <td>
+                          <Link to={`/campaigns/${c.id}`} className="font-medium text-ink hover:text-accent">{c.name}</Link>
+                          <span className="block text-xs text-muted">{gapText(c.gapMin, c.gapMax)} gap · {fmt(c.dailyLimit)}/day</span>
+                        </td>
+                        <td><StatusPill status={c.status} /></td>
+                        <td className="text-muted">{c.connected ? 'Yes' : 'Removed'}</td>
+                        <td>{fmt(c.sentToday)}</td>
+                        <td>{fmt(c.sent)}</td>
+                        <td>{fmt(c.activeLeads)}</td>
+                        <td>{fmt(c.replies)}</td>
+                        <td className="text-muted">{c.lastSentAt ? timeAgo(c.lastSentAt) : '—'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+          <section className="card overflow-hidden">
+            <h2 className="h2 px-4 pb-2 pt-4">Recent activity</h2>
+            {!usage?.activity?.length ? (
+              <Empty title="No activity yet" />
+            ) : (
+              <div>
+                {usage.activity.map((x: any) => (
+                  <div key={`${x.type}-${x.id}`} className="flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-soft px-4 py-2.5 text-sm">
+                    <span className={cn('w-24 flex-none text-xs font-medium', ACTIVITY[x.type]?.[1] ?? 'text-muted')}>{ACTIVITY[x.type]?.[0] ?? x.type}</span>
+                    <span className="min-w-0 flex-1 truncate">
+                      {x.lead}
+                      <span className="text-muted"> · {x.campaign?.name ?? '—'} · Step {x.step}</span>
+                      {x.detail && <span className="block truncate text-xs text-muted">{x.detail}</span>}
+                    </span>
+                    <span className="text-xs text-muted">{timeAgo(x.at)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      )}
 
       <Modal
         open={connOpen}

@@ -73,9 +73,6 @@ export function Layout() {
           <Logo />
         </div>
         <nav aria-label="Main" className="flex flex-col gap-1">
-          <NavItem to="/" end icon={BarChart3}>
-            Analytics
-          </NavItem>
           <NavItem to="/accounts" icon={Mail}>
             Email accounts
           </NavItem>
@@ -87,6 +84,9 @@ export function Layout() {
           </NavItem>
         </nav>
         <div className="flex-1" />
+        <NavItem to="/" end icon={BarChart3}>
+          Dashboard
+        </NavItem>
         <NavItem to="/settings" icon={Settings}>
           Settings
         </NavItem>

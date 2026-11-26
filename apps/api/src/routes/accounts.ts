@@ -281,6 +281,55 @@ export async function accountRoutes(app: FastifyInstance) {
     return { ok: true, to, messageId: res.messageId };
   });
 
+  /** Campaigns this account is connected to or has sent for, plus its recent activity. */
+  app.get('/api/accounts/:id/campaigns', async (req) => {
+    const { id } = req.params as { id: string };
+    const a = await prisma.account.findUnique({ where: { id }, select: { id: true } });
+    if (!a) throw notFound('Account not found');
+    const s = await getSettings();
+    const { start } = (await import('@mailflow/core')).dayBounds(new Date(), s.defaultTimezone);
+    const [links, sentFor] = await Promise.all([
+      prisma.campaignAccount.findMany({ where: { accountId: id }, select: { campaignId: true } }),
+      prisma.message.groupBy({ by: ['campaignId'], where: { accountId: id, status: 'sent' }, _count: { _all: true }, _max: { sentAt: true } }),
+    ]);
+    const connected = new Set(links.map((l) => l.campaignId));
+    const ids = [...new Set([...connected, ...sentFor.map((x) => x.campaignId)])];
+    const [campaigns, today, replies, activeLeads] = await Promise.all([
+      prisma.campaign.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, status: true, dailyLimit: true, gapMin: true, gapMax: true, launchedAt: true, completedAt: true } }),
+      prisma.message.groupBy({ by: ['campaignId'], where: { accountId: id, status: 'sent', sentAt: { gte: start } }, _count: { _all: true } }),
+      prisma.event.groupBy({ by: ['campaignId'], where: { accountId: id, type: 'reply' }, _count: { _all: true } }),
+      prisma.campaignLead.groupBy({ by: ['campaignId'], where: { accountId: id, state: 'active' }, _count: { _all: true } }),
+    ]);
+    const order: Record<string, number> = { active: 0, paused: 1, draft: 2, completed: 3 };
+    const rows = campaigns
+      .map((c) => {
+        const sf = sentFor.find((x) => x.campaignId === c.id);
+        return {
+          ...c,
+          connected: connected.has(c.id),
+          sent: sf?._count._all ?? 0,
+          lastSentAt: sf?._max.sentAt ?? null,
+          sentToday: today.find((x) => x.campaignId === c.id)?._count._all ?? 0,
+          replies: replies.find((x) => x.campaignId === c.id)?._count._all ?? 0,
+          activeLeads: activeLeads.find((x) => x.campaignId === c.id)?._count._all ?? 0,
+        };
+      })
+      .sort((x, y) => order[x.status] - order[y.status] || x.name.localeCompare(y.name));
+
+    // Recent activity: sends plus replies / bounces / unsubscribes on this account's emails.
+    const [msgs, events] = await Promise.all([
+      prisma.message.findMany({ where: { accountId: id, status: { in: ['sent', 'failed'] } }, orderBy: { updatedAt: 'desc' }, take: 30, select: { id: true, status: true, sentAt: true, updatedAt: true, stepPosition: true, subject: true, toEmail: true, error: true, campaign: { select: { id: true, name: true } } } }),
+      prisma.event.findMany({ where: { accountId: id, type: { in: ['reply', 'auto_reply', 'bounce', 'unsubscribe', 'open', 'click'] } }, orderBy: { at: 'desc' }, take: 30, select: { id: true, type: true, at: true, message: { select: { toEmail: true, stepPosition: true, campaign: { select: { id: true, name: true } } } } } }),
+    ]);
+    const activity = [
+      ...msgs.map((m) => ({ id: m.id, type: m.status === 'sent' ? 'sent' : 'failed', at: m.sentAt ?? m.updatedAt, lead: m.toEmail, step: m.stepPosition, campaign: m.campaign, detail: m.status === 'failed' ? m.error : m.subject })),
+      ...events.map((e) => ({ id: e.id, type: e.type, at: e.at, lead: e.message.toEmail, step: e.message.stepPosition, campaign: e.message.campaign, detail: null })),
+    ]
+      .sort((x, y) => new Date(y.at).getTime() - new Date(x.at).getTime())
+      .slice(0, 40);
+    return { campaigns: rows, activity };
+  });
+
   app.get('/api/accounts/:id/warmup', async (req) => {
     const { id } = req.params as { id: string };
     return warmupInfo(id);

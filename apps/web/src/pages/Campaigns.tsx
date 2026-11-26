@@ -8,7 +8,7 @@ import { Button, Empty, Field, Menu, Modal, PageLoader, ProgressBar, SearchInput
 import { fmt, pctStr } from '@/lib/format';
 
 export function campaignHref(c: { id: string; status: string }) {
-  return c.status === 'draft' ? `/campaigns/${c.id}/edit/sequence` : `/campaigns/${c.id}`;
+  return c.status === 'draft' ? `/campaigns/${c.id}` : `/campaigns/${c.id}/analytics`;
 }
 
 export function NewCampaignModal({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -23,7 +23,7 @@ export function NewCampaignModal({ open, onClose }: { open: boolean; onClose: ()
       const res = await post('/api/campaigns', { name, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone });
       onClose();
       setName('');
-      nav(`/campaigns/${res.id}/edit/leads`);
+      nav(`/campaigns/${res.id}/leads`);
     } catch (err: any) {
       toast(err.message, 'error');
     } finally {
@@ -127,8 +127,9 @@ export default function Campaigns() {
                         ghost
                         label={`Actions for ${c.name}`}
                         items={[
-                          { label: c.status === 'draft' ? 'Edit' : 'Open report', onClick: () => nav(campaignHref(c)) },
-                          { label: 'Edit sequence & settings', hidden: c.status === 'draft', onClick: () => nav(`/campaigns/${c.id}/edit/sequence`) },
+                          { label: 'Analytics', onClick: () => nav(`/campaigns/${c.id}/analytics`) },
+                          { label: 'Edit sequence', onClick: () => nav(`/campaigns/${c.id}/sequence`) },
+                          { label: 'Settings', onClick: () => nav(`/campaigns/${c.id}/settings`) },
                           { label: 'Pause', hidden: c.status !== 'active', onClick: () => action(() => post(`/api/campaigns/${c.id}/pause`), 'Campaign paused') },
                           { label: 'Resume', hidden: c.status !== 'paused', onClick: () => action(() => post(`/api/campaigns/${c.id}/resume`), 'Campaign resumed') },
                           { label: 'Duplicate', onClick: () => action(() => post(`/api/campaigns/${c.id}/duplicate`), 'Campaign duplicated') },
