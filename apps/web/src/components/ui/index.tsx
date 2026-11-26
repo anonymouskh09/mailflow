@@ -368,3 +368,53 @@ export function SearchInput({ value, onChange, placeholder, label, className }: 
     </label>
   );
 }
+
+// ---------- Drawer (panel that slides in from the right) ----------
+export function Drawer({ open, onClose, title, description, children, footer, width = 440 }: { open: boolean; onClose: () => void; title: string; description?: ReactNode; children: ReactNode; footer?: ReactNode; width?: number }) {
+  const id = useId();
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(false);
+  useEffect(() => {
+    if (!open) {
+      setShown(false);
+      return;
+    }
+    const t = requestAnimationFrame(() => setShown(true));
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    const prev = document.activeElement as HTMLElement | null;
+    setTimeout(() => ref.current?.querySelector<HTMLElement>('input,textarea,select')?.focus(), 50);
+    return () => {
+      cancelAnimationFrame(t);
+      document.removeEventListener('keydown', onKey);
+      prev?.focus?.();
+    };
+  }, [open]);
+  if (!open) return null;
+  return createPortal(
+    <div className="fixed inset-0 z-40 flex justify-end">
+      <div className={cn('absolute inset-0 bg-[rgba(24,24,27,.35)] transition-opacity duration-200', shown ? 'opacity-100' : 'opacity-0')} onMouseDown={onClose} />
+      <div
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={id}
+        className={cn('relative flex h-full w-full flex-col bg-white shadow-[-12px_0_40px_rgba(24,24,27,.18)] transition-transform duration-200 ease-out', shown ? 'translate-x-0' : 'translate-x-full')}
+        style={{ maxWidth: width }}
+      >
+        <div className="flex items-start gap-3 border-b border-soft px-5 py-4">
+          <div className="min-w-0 flex-1">
+            <h2 id={id} className="m-0 text-lg font-bold">{title}</h2>
+            {description && <p className="mb-0 mt-1 text-[13px] text-muted">{description}</p>}
+          </div>
+          <Button icon variant="ghost" aria-label="Close" onClick={onClose} className="text-muted">
+            <X className="h-[18px] w-[18px]" aria-hidden />
+          </Button>
+        </div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
+        {footer && <div className="flex justify-end gap-2.5 border-t border-soft px-5 py-3.5">{footer}</div>}
+      </div>
+    </div>,
+    document.body,
+  );
+}

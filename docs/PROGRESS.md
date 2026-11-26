@@ -71,3 +71,5 @@ Newest entry last. Each phase is verified (typecheck, lint, tests, manual run ag
 - Campaign page merged into one page with tabs **Analytics · Leads · Sequence · Settings**; launched campaigns open on Analytics (KPIs, daily chart for the campaign, by-step table, leads). Old `/campaigns/:id/edit/...` links redirect.
 - Sidebar: the overall analytics page is now **Dashboard**, at the bottom of the sidebar.
 - Campaign Settings starts with **Sending speed**: wait between emails (minutes, per account) and emails per day for the campaign, with an estimate.
+- Sidebar can be hidden to an icon strip (button next to the logo or Ctrl/Cmd + B); remembered per browser.
+- Unibox: ⋯ → **Edit lead** (or "Edit" in the lead panel) opens a side panel pre-filled with first name, last name, company and all custom fields; fields can be changed, added or removed and saved. Email stays read-only so reply matching keeps working. New endpoints `GET/PATCH /api/leads/:id`.

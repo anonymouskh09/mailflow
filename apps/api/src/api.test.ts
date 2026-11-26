@@ -144,6 +144,19 @@ describe('leads and campaigns', () => {
     expect(del.statusCode).toBe(400);
   });
 
+  it('edits a lead and keeps the Unibox name in sync; email stays fixed', async () => {
+    const a = await makeAccount();
+    const { leads } = await makeCampaign({ accounts: [a.id], leads: ['jim@acme.com'] });
+    await prisma.thread.create({ data: { accountId: a.id, leadId: leads[0].id, leadEmail: 'jim@acme.com', leadName: 'First1', lastMessageAt: new Date() } });
+    const res = await authed({ method: 'PATCH', url: `/api/leads/${leads[0].id}`, payload: { firstName: 'Jim', lastName: 'Hale', company: 'Acme Ltd', customFields: { city: 'Leeds' }, email: 'other@x.com' } });
+    expect(res.statusCode).toBe(200);
+    const lead = await prisma.lead.findUniqueOrThrow({ where: { id: leads[0].id } });
+    expect(lead).toMatchObject({ firstName: 'Jim', lastName: 'Hale', company: 'Acme Ltd', email: 'jim@acme.com', customFields: { city: 'Leeds' } });
+    expect((await prisma.thread.findFirstOrThrow()).leadName).toBe('Jim Hale');
+    const bad = await authed({ method: 'PATCH', url: `/api/leads/${leads[0].id}`, payload: { customFields: { '1bad key': 'x' } } });
+    expect(bad.statusCode).toBe(400);
+  });
+
   it('previews a step for a lead with missing-variable counts', async () => {
     const a = await makeAccount({ signatureHtml: '{{senderName}}' });
     const { campaign, leads } = await makeCampaign({ accounts: [a.id], leads: ['a@x.com', 'b@x.com'], steps: [{ subject: 'Hi {{firstName}}', body: 'From {{city}} {{signature}}' }] });

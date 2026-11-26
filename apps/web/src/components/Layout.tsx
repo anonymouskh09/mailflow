@@ -1,35 +1,47 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { BarChart3, Mail, Send, Inbox, Settings, LogOut, Menu as MenuIcon } from 'lucide-react';
+import { BarChart3, Mail, Send, Inbox, Settings, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { get, post } from '@/lib/api';
 import { cn } from '@/lib/cn';
 
-export function Logo() {
+export function Logo({ compact }: { compact?: boolean }) {
   return (
-    <div className="flex items-center gap-2.5 px-3 pb-5 text-[17px] font-bold">
-      <span className="inline-flex h-7 w-7 items-center justify-center rounded-lg bg-accent">
+    <div className={cn('flex items-center gap-2.5 text-[17px] font-bold', compact ? 'justify-center' : 'px-3')}>
+      <span className="inline-flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-accent">
         <Send className="h-4 w-4 text-white" strokeWidth={2} aria-hidden />
       </span>
-      MailFlow
+      {!compact && 'MailFlow'}
     </div>
   );
 }
 
-function NavItem({ to, icon: Icon, children, badge, end }: { to: string; icon: typeof Mail; children: string; badge?: number; end?: boolean }) {
+const SIDEBAR_KEY = 'mf_sidebar_collapsed';
+
+function NavItem({ to, icon: Icon, children, badge, end, collapsed }: { to: string; icon: typeof Mail; children: string; badge?: number; end?: boolean; collapsed?: boolean }) {
   return (
     <NavLink
       to={to}
       end={end}
-      className={({ isActive }) => cn('flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium', isActive ? 'bg-accent-soft text-accent-dark hover:text-accent-dark' : 'text-[#3F3F46] hover:bg-[#F4F4F5] hover:text-ink')}
+      title={collapsed ? children : undefined}
+      className={({ isActive }) =>
+        cn(
+          'relative flex min-h-10 items-center gap-2.5 rounded-lg text-sm font-medium',
+          collapsed ? 'justify-center px-0' : 'px-3',
+          isActive ? 'bg-accent-soft text-accent-dark hover:text-accent-dark' : 'text-[#3F3F46] hover:bg-[#F4F4F5] hover:text-ink',
+        )
+      }
     >
-      <Icon className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden />
-      {children}
-      {!!badge && (
-        <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-white" aria-label={`${badge} unread`}>
-          {badge > 99 ? '99+' : badge}
-        </span>
-      )}
+      <Icon className="h-[18px] w-[18px] flex-none" strokeWidth={1.8} aria-hidden />
+      <span className={collapsed ? 'sr-only' : undefined}>{children}</span>
+      {!!badge &&
+        (collapsed ? (
+          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" aria-label={`${badge} unread`} />
+        ) : (
+          <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-white" aria-label={`${badge} unread`}>
+            {badge > 99 ? '99+' : badge}
+          </span>
+        ))}
     </NavLink>
   );
 }
@@ -39,6 +51,31 @@ export function Layout() {
   const qc = useQueryClient();
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
+  // Desktop sidebar can be collapsed to icons; remembered per browser. Ctrl/Cmd + B toggles it.
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_KEY) === '1';
+    } catch {
+      return false;
+    }
+  });
+  const toggleSidebar = () =>
+    setCollapsed((c) => {
+      try {
+        localStorage.setItem(SIDEBAR_KEY, c ? '0' : '1');
+      } catch {}
+      return !c;
+    });
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'b' && !(e.target as HTMLElement)?.closest?.('input,textarea,[contenteditable="true"]')) {
+        e.preventDefault();
+        toggleSidebar();
+      }
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, []);
   // Optional browser notification when new replies arrive (enabled in Settings).
   const prev = useRef<number | null>(null);
   useEffect(() => {
@@ -61,38 +98,51 @@ export function Layout() {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       <div className="flex items-center justify-between border-b border-line bg-white px-4 py-3 md:hidden">
-        <div className="-mb-5">
-          <Logo />
-        </div>
+        <Logo />
         <button className="rounded-lg p-2 hover:bg-[#F4F4F5]" aria-label="Open navigation" aria-expanded={open} onClick={() => setOpen(!open)}>
           <MenuIcon className="h-5 w-5" aria-hidden />
         </button>
       </div>
-      <aside className={cn('flex-col gap-1 border-r border-line bg-white px-3 py-5 md:sticky md:top-0 md:flex md:h-screen md:w-[220px] md:flex-none', open ? 'flex' : 'hidden')} onClick={() => setOpen(false)}>
-        <div className="hidden md:block">
-          <Logo />
+      <aside
+        className={cn('flex-col gap-1 border-r border-line bg-white py-5 transition-[width] duration-150 md:sticky md:top-0 md:flex md:h-screen md:flex-none', collapsed ? 'px-3 md:w-16 md:px-2' : 'px-3 md:w-[220px]', open ? 'flex' : 'hidden')}
+        onClick={() => setOpen(false)}
+      >
+        <div className={cn('mb-5 hidden items-center md:flex', collapsed ? 'flex-col gap-3' : 'justify-between')}>
+          <Logo compact={collapsed} />
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleSidebar();
+            }}
+            className="rounded-lg p-1.5 text-muted hover:bg-[#F4F4F5] hover:text-ink"
+            aria-label={collapsed ? 'Show sidebar' : 'Hide sidebar'}
+            aria-expanded={!collapsed}
+            title={`${collapsed ? 'Show' : 'Hide'} sidebar (Ctrl+B)`}
+          >
+            {collapsed ? <PanelLeftOpen className="h-[18px] w-[18px]" aria-hidden /> : <PanelLeftClose className="h-[18px] w-[18px]" aria-hidden />}
+          </button>
         </div>
         <nav aria-label="Main" className="flex flex-col gap-1">
-          <NavItem to="/accounts" icon={Mail}>
+          <NavItem collapsed={collapsed && !open} to="/accounts" icon={Mail}>
             Email accounts
           </NavItem>
-          <NavItem to="/campaigns" icon={Send}>
+          <NavItem collapsed={collapsed && !open} to="/campaigns" icon={Send}>
             Campaigns
           </NavItem>
-          <NavItem to="/unibox" icon={Inbox} badge={data?.count}>
+          <NavItem collapsed={collapsed && !open} to="/unibox" icon={Inbox} badge={data?.count}>
             Unibox
           </NavItem>
         </nav>
         <div className="flex-1" />
-        <NavItem to="/" end icon={BarChart3}>
+        <NavItem collapsed={collapsed && !open} to="/" end icon={BarChart3}>
           Dashboard
         </NavItem>
-        <NavItem to="/settings" icon={Settings}>
+        <NavItem collapsed={collapsed && !open} to="/settings" icon={Settings}>
           Settings
         </NavItem>
-        <button onClick={logout} className="flex min-h-10 items-center gap-2.5 rounded-lg px-3 text-sm font-medium text-[#3F3F46] hover:bg-[#F4F4F5]">
-          <LogOut className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden />
-          Sign out
+        <button onClick={logout} title={collapsed ? 'Sign out' : undefined} className={cn('flex min-h-10 items-center gap-2.5 rounded-lg text-sm font-medium text-[#3F3F46] hover:bg-[#F4F4F5]', collapsed && !open ? 'justify-center' : 'px-3')}>
+          <LogOut className="h-[18px] w-[18px] flex-none" strokeWidth={1.8} aria-hidden />
+          <span className={collapsed && !open ? 'sr-only' : undefined}>Sign out</span>
         </button>
       </aside>
       <main className="min-w-0 flex-1">

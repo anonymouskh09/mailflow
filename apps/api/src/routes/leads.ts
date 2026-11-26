@@ -137,6 +137,37 @@ export async function leadRoutes(app: FastifyInstance) {
     return { total, page: q.page, pageSize: q.pageSize, leads };
   });
 
+  app.get('/api/leads/:id', async (req) => {
+    const { id } = req.params as { id: string };
+    const lead = await prisma.lead.findUnique({ where: { id } });
+    if (!lead) throw notFound('Lead not found');
+    return lead;
+  });
+
+  /** Edit a lead's details (used by the Unibox "Edit lead" panel). The email stays fixed so reply matching keeps working. */
+  app.patch('/api/leads/:id', async (req) => {
+    const { id } = req.params as { id: string };
+    const b = z
+      .object({
+        firstName: z.string().trim().max(200).optional(),
+        lastName: z.string().trim().max(200).optional(),
+        company: z.string().trim().max(300).optional(),
+        customFields: z
+          .record(z.string().max(5000))
+          .refine((o) => Object.keys(o).length <= 100, 'At most 100 fields')
+          .refine((o) => Object.keys(o).every((k) => /^[A-Za-z][A-Za-z0-9_]{0,59}$/.test(k)), 'Field names: letters, numbers and _ only, starting with a letter')
+          .optional(),
+      })
+      .parse(req.body);
+    const lead = await prisma.lead.findUnique({ where: { id } });
+    if (!lead) throw notFound('Lead not found');
+    const updated = await prisma.lead.update({ where: { id }, data: b });
+    // keep the Unibox name in sync
+    const name = `${updated.firstName} ${updated.lastName}`.trim();
+    if (name) await prisma.thread.updateMany({ where: { leadId: id }, data: { leadName: name } });
+    return updated;
+  });
+
   app.post('/api/lists/:id/leads/delete', async (req) => {
     const { id } = req.params as { id: string };
     const b = z.object({ ids: z.array(z.string()).max(10000).optional(), all: z.boolean().optional() }).parse(req.body);

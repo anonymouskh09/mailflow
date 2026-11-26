@@ -5,6 +5,7 @@ import { ChevronDown, ChevronLeft, Filter as FilterIcon, Send } from 'lucide-rea
 import { get, patch, post, del, qs } from '@/lib/api';
 import { Button, Dropdown, Empty, Field, Menu, Modal, PageLoader, Pill, Popover, Segmented, Spinner, useToast } from '@/components/ui';
 import { fullTime, initials, shortTime } from '@/lib/format';
+import { EditLeadDrawer } from '@/components/EditLeadDrawer';
 import { cn } from '@/lib/cn';
 
 function sanitize(html: string) {
@@ -226,6 +227,7 @@ function ThreadView({ id, onBack }: { id: string; onBack: () => void }) {
   const { data: labels } = useQuery({ queryKey: ['labels'], queryFn: () => get('/api/labels') });
   const [notes, setNotes] = useState('');
   const [moving, setMoving] = useState(false);
+  const [editing, setEditing] = useState(false);
   const bottom = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (t) setNotes(t.notes);
@@ -295,6 +297,7 @@ function ThreadView({ id, onBack }: { id: string; onBack: () => void }) {
           <Menu
             label="Conversation actions"
             items={[
+              { label: 'Edit lead', disabled: !t.lead, onClick: () => setEditing(true) },
               { label: 'Mark as unread', onClick: () => update({ unread: true }, 'Marked as unread') },
               { label: t.isLead ? 'Mark as not a lead' : 'Mark as lead', onClick: () => update({ isLead: !t.isLead }, t.isLead ? 'Hidden from the Unibox' : 'Marked as lead') },
               { label: 'Move lead to another campaign', onClick: () => setMoving(true) },
@@ -337,7 +340,10 @@ function ThreadView({ id, onBack }: { id: string; onBack: () => void }) {
       </section>
       <aside className="border-t border-line bg-white p-5 lg:w-[280px] lg:flex-none lg:overflow-y-auto lg:border-l lg:border-t-0">
         <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#F4F4F5] font-semibold text-[#3F3F46]" aria-hidden>{initials(t.leadName)}</div>
-        <div className="mt-2.5 text-base font-semibold">{t.leadName}</div>
+        <div className="mt-2.5 flex items-center gap-2">
+          <span className="min-w-0 flex-1 truncate text-base font-semibold">{t.leadName}</span>
+          {t.lead && <Button size="sm" variant="ghost" className="h-8 px-2 text-[13px] text-accent" onClick={() => setEditing(true)}>Edit</Button>}
+        </div>
         <div className="break-all text-[13px] text-muted">{t.leadEmail}</div>
         <div className="mt-4 border-t border-soft pt-2.5">
           {info.map(([k, v]) => (
@@ -353,6 +359,7 @@ function ThreadView({ id, onBack }: { id: string; onBack: () => void }) {
         </label>
       </aside>
       <MoveModal threadId={id} open={moving} onClose={() => setMoving(false)} />
+      <EditLeadDrawer leadId={t.lead?.id ?? null} open={editing} onClose={() => setEditing(false)} onSaved={refresh} />
     </div>
   );
 }
