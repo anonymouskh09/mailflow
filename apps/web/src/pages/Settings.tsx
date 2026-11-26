@@ -193,6 +193,37 @@ function Templates() {
   );
 }
 
+function NotifyToggle() {
+  const supported = typeof window !== 'undefined' && 'Notification' in window;
+  const [on, setOn] = useState(() => {
+    try {
+      return supported && localStorage.getItem('mf_notify') === '1' && Notification.permission === 'granted';
+    } catch {
+      return false;
+    }
+  });
+  const toggle = async (v: boolean) => {
+    if (v && Notification.permission !== 'granted') {
+      const p = await Notification.requestPermission();
+      if (p !== 'granted') return;
+    }
+    try {
+      localStorage.setItem('mf_notify', v ? '1' : '0');
+    } catch {}
+    setOn(v);
+  };
+  if (!supported) return null;
+  return (
+    <div className="flex items-center gap-3">
+      <span className="flex-1">
+        <span className="block text-sm font-medium">Browser notifications</span>
+        <span className="text-xs text-muted">Notify this browser when new replies reach the Unibox (while MailFlow is open).</span>
+      </span>
+      <Switch label="Browser notifications" checked={on} onChange={toggle} />
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const qc = useQueryClient();
   const toast = useToast();
@@ -240,6 +271,7 @@ export default function SettingsPage() {
                 {tz.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </Field>
+            <NotifyToggle />
             <Field label="Send test emails to" hint="Defaults to your admin email.">
               <input className="inp" type="email" value={f.notifyEmail} onChange={(e) => setF({ ...f, notifyEmail: e.target.value })} placeholder={data.adminEmail} />
             </Field>

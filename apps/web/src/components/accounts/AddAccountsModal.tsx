@@ -67,7 +67,14 @@ function PasswordForm({ provider, onDone }: { provider: 'outlook' | 'custom'; on
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState('');
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+    const next = { ...f, [k]: v };
+    // pick SSL/TLS from well-known ports; still editable under Advanced
+    if (k === 'smtpPort') next.smtpSecure = v === '465';
+    if (k === 'imapPort') next.imapSecure = v === '993';
+    setF(next);
+  };
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);

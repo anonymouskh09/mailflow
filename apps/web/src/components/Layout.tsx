@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { BarChart3, Mail, Send, Inbox, Settings, LogOut, Menu as MenuIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { get, post } from '@/lib/api';
 import { cn } from '@/lib/cn';
 
@@ -39,6 +39,20 @@ export function Layout() {
   const qc = useQueryClient();
   const nav = useNavigate();
   const [open, setOpen] = useState(false);
+  // Optional browser notification when new replies arrive (enabled in Settings).
+  const prev = useRef<number | null>(null);
+  useEffect(() => {
+    const n = data?.count;
+    if (n === undefined) return;
+    let enabled = false;
+    try {
+      enabled = localStorage.getItem('mf_notify') === '1';
+    } catch {}
+    if (enabled && prev.current !== null && n > prev.current && 'Notification' in window && Notification.permission === 'granted') {
+      new Notification('MailFlow', { body: `${n - prev.current} new repl${n - prev.current === 1 ? 'y' : 'ies'} in the Unibox` });
+    }
+    prev.current = n;
+  }, [data?.count]);
   const logout = async () => {
     await post('/api/auth/logout');
     qc.clear();

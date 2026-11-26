@@ -6,7 +6,7 @@ services:
       POSTGRES_USER: mailflow
       POSTGRES_PASSWORD: mailflow
       POSTGRES_DB: mailflow
-    ports: ["5432:5432"]
+    ports: ["127.0.0.1:5432:5432"]
     volumes: [pgdata:/var/lib/postgresql/data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U mailflow"]
@@ -14,11 +14,11 @@ services:
       retries: 10
   redis:
     image: redis:7-alpine
-    ports: ["6379:6379"]
+    ports: ["127.0.0.1:6379:6379"]
   mailpit:
     # Fake SMTP server + web inbox at http://localhost:8025 — no real email leaves.
     image: axllent/mailpit:latest
-    ports: ["1025:1025", "8025:8025"]
+    ports: ["127.0.0.1:1025:1025", "127.0.0.1:8025:8025"]
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: "1"
       MP_SMTP_AUTH_ALLOW_INSECURE: "1"
@@ -29,6 +29,6 @@ services:
     profiles: ["imap"]
     environment:
       GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled -Dgreenmail.verbose"
-    ports: ["3025:3025", "3143:3143"]
+    ports: ["127.0.0.1:3025:3025", "127.0.0.1:3143:3143"]
 volumes:
   pgdata:

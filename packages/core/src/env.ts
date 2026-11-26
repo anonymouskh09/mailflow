@@ -1,4 +1,28 @@
 import { z } from 'zod';
+import { existsSync, readFileSync } from 'node:fs';
+import path from 'node:path';
+
+/** Load the nearest .env (walking up from the working directory). Existing variables win. */
+function loadDotEnv() {
+  let dir = process.cwd();
+  for (let i = 0; i < 6; i++) {
+    const file = path.join(dir, '.env');
+    if (existsSync(file)) {
+      for (const line of readFileSync(file, 'utf8').split(/\r?\n/)) {
+        const m = /^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$/.exec(line);
+        if (!m || line.trim().startsWith('#')) continue;
+        let v = m[2];
+        if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+        if (process.env[m[1]] === undefined) process.env[m[1]] = v;
+      }
+      return;
+    }
+    const up = path.dirname(dir);
+    if (up === dir) return;
+    dir = up;
+  }
+}
+if (!process.env.VITEST) loadDotEnv();
 
 const schema = z.object({
   NODE_ENV: z.string().default('development'),

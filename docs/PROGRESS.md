@@ -47,3 +47,19 @@ Newest entry last. Each phase is verified (typecheck, lint, tests, manual run ag
 - Score = share of the account's warmup emails in the last 7 days that landed in the recipient's Inbox; shown with sent / received / saved from spam / replies and a 14-day inbox-vs-spam chart; below 80 shows a warning; campaign Settings shows each account's score.
 - Tests: 6 warmup tests (pool minimum, ramp-up plan and spacing, campaign cap, cross-domain preference, send/receive/reply/score, idempotent receipt).
 - Verified with 5 accounts on a real IMAP server, with today's full plan pulled forward: 15 warmup emails sent and received, all marked read + starred and filed in MF-Warmup; one email placed in Junk was rescued and counted as spam; 2 replies sent in thread; every account shows a score. A real 7-day unattended run still has to happen on the VPS.
+
+## Phase 5 – Deploy ✅ (files ready; needs a real VPS to run)
+
+- `Dockerfile` (one image for web + worker, non-root user), `docker-compose.prod.yml` (web, worker, postgres, redis, caddy) with health checks: `/api/health` for web, a heartbeat file touched by the send loop for the worker, `pg_isready`, `redis-cli ping`. Migrations run when `web` starts.
+- `deploy/Caddyfile`: automatic HTTPS for the app domain; the tracking domain only serves `/o/*`, `/c/*`, `/u/*`.
+- `scripts/backup.sh` (daily `pg_dump`, 14-day retention, optional rclone off-server copy) and `scripts/restore.sh`.
+- `DEPLOY.md`: Ubuntu 24.04 VPS (port 587 note), Docker, DNS for app + tracking domains, SPF/DKIM/DMARC per sending domain, `.env`, Google Cloud OAuth client (Internal vs External "In production"), Workspace domain-wide delegation, Microsoft 365 SMTP AUTH, backups, updates, troubleshooting.
+- `README.md`: setup, env vars, commands, tests, how to test every feature locally (Mailpit + GreenMail + `scripts/dev/lead.py`), security notes, known limitations.
+- The API and worker load `.env` themselves; optional browser notifications for new replies.
+- Verified here: the production build of the dashboard is served by the API with SPA fallback and `/api/health`. Not verifiable here (no Docker daemon, no domain): `docker compose -f docker-compose.prod.yml up`, Caddy certificates, Google OAuth with real credentials, a 7-day unattended warmup run.
+
+## What is next (for the owner)
+
+1. Create the Google Cloud OAuth client (DEPLOY.md §6) and try Connect with Google with 2–3 real mailboxes.
+2. Deploy to a VPS with outbound 587 open, point `app.` and `track.` DNS at it, set SPF/DKIM/DMARC on sending domains.
+3. Let warmup run 2–3 weeks before the first real campaign.
