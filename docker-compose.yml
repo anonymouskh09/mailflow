@@ -1,0 +1,34 @@
+# Local development services. Run: docker compose up -d
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mailflow
+      POSTGRES_PASSWORD: mailflow
+      POSTGRES_DB: mailflow
+    ports: ["5432:5432"]
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mailflow"]
+      interval: 5s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  mailpit:
+    # Fake SMTP server + web inbox at http://localhost:8025 — no real email leaves.
+    image: axllent/mailpit:latest
+    ports: ["1025:1025", "8025:8025"]
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+  greenmail:
+    # Optional: real SMTP + IMAP test server so reply detection, Unibox and warmup can be tested locally.
+    # Any user/password is accepted and the mailbox is created on first login.
+    image: greenmail/standalone:2.1.2
+    profiles: ["imap"]
+    environment:
+      GREENMAIL_OPTS: "-Dgreenmail.setup.test.all -Dgreenmail.hostname=0.0.0.0 -Dgreenmail.auth.disabled -Dgreenmail.verbose"
+    ports: ["3025:3025", "3143:3143"]
+volumes:
+  pgdata:

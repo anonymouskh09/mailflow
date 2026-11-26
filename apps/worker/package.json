@@ -1,0 +1,17 @@
+{
+  "name": "@mailflow/worker",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/index.ts",
+    "start": "node --import tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@mailflow/core": "*",
+    "@mailflow/db": "*",
+    "bullmq": "^5.25.0",
+    "ioredis": "^5.4.1"
+  }
+}

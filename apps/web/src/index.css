@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body { @apply bg-ground text-ink font-sans antialiased; }
+  a { @apply text-accent hover:text-accent-dark; }
+  :focus-visible { outline: 2px solid #4F46E5; outline-offset: 2px; }
+}
+
+@layer components {
+  .card { @apply bg-white border border-line rounded-card; }
+  .inp { @apply w-full h-10 px-3 border border-line rounded-lg text-sm text-ink bg-white placeholder:text-subtle focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent-soft disabled:bg-ground disabled:text-muted; }
+  textarea.inp { @apply h-auto py-2.5; }
+  .lbl { @apply block text-[13px] font-medium mb-1.5 text-[#3F3F46]; }
+  .h2 { @apply m-0 text-base font-semibold; }
+  .tbl { @apply w-full border-collapse text-sm; }
+  .tbl th { @apply text-left font-medium text-muted text-xs px-4 py-2.5 border-b border-line whitespace-nowrap; }
+  .tbl td { @apply px-4 py-3 border-b border-soft whitespace-nowrap; }
+  .tbl tbody tr:last-child td { @apply border-b-0; }
+  .var { @apply bg-accent-soft text-accent-dark rounded px-1 font-medium; }
+  .rte p { margin: 0 0 12px; }
+  .rte p:last-child { margin-bottom: 0; }
+  .rte a { text-decoration: underline; }
+  .mail-body p { margin: 0 0 10px; }
+  .mail-body blockquote { border-left: 3px solid #E4E4E7; margin: 8px 0; padding-left: 10px; color: #52525B; }
+}

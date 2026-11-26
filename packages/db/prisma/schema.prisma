@@ -1,0 +1,524 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Accounts ----------
+
+enum Provider {
+  google
+  outlook
+  custom
+}
+
+enum AuthType {
+  password
+  google_oauth
+  google_dwd
+}
+
+enum AccountStatus {
+  active
+  error
+  paused
+}
+
+model Account {
+  id                  String          @id @default(cuid())
+  email               String          @unique
+  fromName            String          @map("from_name")
+  provider            Provider
+  smtpHost            String          @map("smtp_host")
+  smtpPort            Int             @map("smtp_port")
+  smtpSecure          Boolean         @default(false) @map("smtp_secure") // true = implicit TLS (465); false = STARTTLS
+  imapHost            String          @map("imap_host")
+  imapPort            Int             @map("imap_port")
+  imapSecure          Boolean         @default(true) @map("imap_secure")
+  username            String
+  authType            AuthType        @map("auth_type")
+  passwordEnc         String?         @map("password_enc")
+  oauthRefreshTokenEnc String?        @map("oauth_refresh_token_enc")
+  oauthExpiresAt      DateTime?       @map("oauth_expires_at")
+  workspaceId         String?         @map("workspace_id")
+  workspace           GoogleWorkspace? @relation(fields: [workspaceId], references: [id], onDelete: SetNull)
+  dailyLimit          Int             @default(30) @map("daily_limit")
+  gapMinMinutes       Int             @default(10) @map("gap_min_minutes")
+  signatureHtml       String          @default("") @map("signature_html")
+  status              AccountStatus   @default(active)
+  smtpOk              Boolean?        @map("smtp_ok")
+  imapOk              Boolean?        @map("imap_ok")
+  lastError           String?         @map("last_error")
+  lastCheckedAt       DateTime?       @map("last_checked_at")
+  nextSendAt          DateTime?       @map("next_send_at")
+  pausedUntil         DateTime?       @map("paused_until") // provider rate limit back-off
+  tags                String[]        @default([])
+  imapInboxUid        Int?            @map("imap_inbox_uid")
+  imapInboxValidity   String?         @map("imap_inbox_validity")
+  imapSyncedAt        DateTime?       @map("imap_synced_at")
+  createdAt           DateTime        @default(now()) @map("created_at")
+  updatedAt           DateTime        @updatedAt @map("updated_at")
+
+  warmup           WarmupSettings?
+  campaignAccounts CampaignAccount[]
+  campaignLeads    CampaignLead[]
+  messages         Message[]
+  threads          Thread[]
+  inboxMessages    InboxMessage[]
+  warmupSent       WarmupMessage[] @relation("warmupFrom")
+  warmupReceived   WarmupMessage[] @relation("warmupTo")
+
+  @@map("accounts")
+}
+
+model WarmupSettings {
+  id             String   @id @default(cuid())
+  accountId      String   @unique @map("account_id")
+  account        Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  enabled        Boolean  @default(true)
+  startVolume    Int      @default(3) @map("start_volume")
+  increasePerDay Int      @default(2) @map("increase_per_day")
+  maxVolume      Int      @default(40) @map("max_volume")
+  replyRate      Int      @default(30) @map("reply_rate") // percent
+  workingDays    Int[]    @default([0, 1, 2, 3, 4, 5, 6]) @map("working_days") // 0 = Sunday
+  weekendFactor  Int      @default(50) @map("weekend_factor") // percent of volume on Sat/Sun
+  keepDuringCampaigns Boolean @default(true) @map("keep_during_campaigns")
+  startedOn      DateTime? @map("started_on")
+  plannedFor     String?  @map("planned_for") // YYYY-MM-DD of the last day the sends were planned
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("warmup_settings")
+}
+
+enum WarmupLanded {
+  inbox
+  spam
+  unknown
+}
+
+enum WarmupStatus {
+  planned
+  sent
+  failed
+}
+
+model WarmupMessage {
+  id            String       @id @default(cuid())
+  fromAccountId String       @map("from_account_id")
+  fromAccount   Account      @relation("warmupFrom", fields: [fromAccountId], references: [id], onDelete: Cascade)
+  toAccountId   String       @map("to_account_id")
+  toAccount     Account      @relation("warmupTo", fields: [toAccountId], references: [id], onDelete: Cascade)
+  parentId      String?      @map("parent_id") // set on warmup replies
+  messageId     String?      @unique @map("message_id")
+  code          String       @unique
+  subject       String       @default("")
+  status        WarmupStatus @default(planned)
+  scheduledAt   DateTime     @map("scheduled_at")
+  sentAt        DateTime?    @map("sent_at")
+  landed        WarmupLanded @default(unknown)
+  processedAt   DateTime?    @map("processed_at")
+  rescuedAt     DateTime?    @map("rescued_at")
+  replyDueAt    DateTime?    @map("reply_due_at")
+  repliedAt     DateTime?    @map("replied_at")
+  error         String?
+  createdAt     DateTime     @default(now()) @map("created_at")
+  updatedAt     DateTime     @updatedAt @map("updated_at")
+
+  @@index([status, scheduledAt])
+  @@index([fromAccountId, sentAt])
+  @@index([toAccountId, sentAt])
+  @@map("warmup_messages")
+}
+
+model GoogleWorkspace {
+  id                    String    @id @default(cuid())
+  domain                String    @unique
+  serviceAccountJsonEnc String    @map("service_account_json_enc")
+  adminEmail            String    @map("admin_email")
+  createdAt             DateTime  @default(now()) @map("created_at")
+  updatedAt             DateTime  @updatedAt @map("updated_at")
+  accounts              Account[]
+
+  @@map("google_workspaces")
+}
+
+model AccountImport {
+  id        String   @id @default(cuid())
+  source    String // csv / google / dwd
+  total     Int
+  succeeded Int
+  failed    Int
+  report    Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("account_imports")
+}
+
+// ---------- Leads ----------
+
+enum LeadStatus {
+  not_contacted
+  in_sequence
+  replied
+  completed
+  bounced
+  unsubscribed
+}
+
+model LeadList {
+  id        String     @id @default(cuid())
+  name      String
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+  leads     Lead[]
+  campaigns Campaign[]
+
+  @@map("lead_lists")
+}
+
+model Lead {
+  id           String     @id @default(cuid())
+  listId       String     @map("list_id")
+  list         LeadList   @relation(fields: [listId], references: [id], onDelete: Cascade)
+  email        String
+  firstName    String     @default("") @map("first_name")
+  lastName     String     @default("") @map("last_name")
+  company      String     @default("")
+  customFields Json       @default("{}") @map("custom_fields")
+  status       LeadStatus @default(not_contacted)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  campaignLeads CampaignLead[]
+  messages      Message[]
+  threads       Thread[]
+
+  @@unique([listId, email])
+  @@index([email])
+  @@map("leads")
+}
+
+model Suppression {
+  id        String   @id @default(cuid())
+  value     String   @unique // lower-cased email or domain
+  kind      String // email | domain
+  reason    String // unsubscribed | bounced | manual
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("suppression")
+}
+
+// ---------- Campaigns ----------
+
+enum CampaignStatus {
+  draft
+  active
+  paused
+  completed
+}
+
+enum Priority {
+  followups_first
+  new_first
+}
+
+model Campaign {
+  id              String         @id @default(cuid())
+  name            String
+  status          CampaignStatus @default(draft)
+  listId          String?        @map("list_id")
+  list            LeadList?      @relation(fields: [listId], references: [id], onDelete: SetNull)
+  timezone        String         @default("UTC")
+  days            Int[]          @default([1, 2, 3, 4, 5]) // 0 = Sunday
+  windowStart     String         @default("09:00") @map("window_start")
+  windowEnd       String         @default("17:00") @map("window_end")
+  startAt         DateTime?      @map("start_at")
+  gapMin          Int            @default(8) @map("gap_min")
+  gapMax          Int            @default(15) @map("gap_max")
+  dailyLimit      Int            @default(100) @map("daily_limit")
+  newLeadsPerDay  Int?           @map("new_leads_per_day")
+  priority        Priority       @default(followups_first)
+  trackOpens      Boolean        @default(true) @map("track_opens")
+  trackClicks     Boolean        @default(false) @map("track_clicks")
+  stopOnReply     Boolean        @default(true) @map("stop_on_reply")
+  stopOnAutoReply Boolean        @default(false) @map("stop_on_auto_reply")
+  stopOnDomainReply Boolean      @default(false) @map("stop_on_domain_reply")
+  plainText       Boolean        @default(false) @map("plain_text")
+  unsubscribeFooter Boolean      @default(true) @map("unsubscribe_footer")
+  launchedAt      DateTime?      @map("launched_at")
+  completedAt     DateTime?      @map("completed_at")
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  accounts      CampaignAccount[]
+  steps         SequenceStep[]
+  campaignLeads CampaignLead[]
+  messages      Message[]
+  threads       Thread[]
+
+  @@map("campaigns")
+}
+
+model CampaignAccount {
+  campaignId String   @map("campaign_id")
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  accountId  String   @map("account_id")
+  account    Account  @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@id([campaignId, accountId])
+  @@map("campaign_accounts")
+}
+
+model SequenceStep {
+  id         String    @id @default(cuid())
+  campaignId String    @map("campaign_id")
+  campaign   Campaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  position   Int // 1-based
+  delayDays  Int       @default(0) @map("delay_days")
+  subject    String    @default("")
+  bodyHtml   String    @default("") @map("body_html")
+  bodyText   String    @default("") @map("body_text")
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+  messages   Message[]
+
+  @@index([campaignId, position])
+  @@map("sequence_steps")
+}
+
+enum CampaignLeadState {
+  active
+  replied
+  bounced
+  unsubscribed
+  completed
+}
+
+model CampaignLead {
+  id              String            @id @default(cuid())
+  campaignId      String            @map("campaign_id")
+  campaign        Campaign          @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  leadId          String            @map("lead_id")
+  lead            Lead              @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  accountId       String?           @map("account_id")
+  account         Account?          @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  currentStep     Int               @default(0) @map("current_step") // number of steps already sent
+  nextDueAt       DateTime?         @map("next_due_at")
+  state           CampaignLeadState @default(active)
+  threadMessageId String?           @map("thread_message_id") // Message-ID of Step 1
+  threadReferences String?          @map("thread_references")
+  threadSubject   String?           @map("thread_subject")
+  lockedUntil     DateTime?         @map("locked_until")
+  heldReason      String?           @map("held_reason")
+  lastActivity    String?           @map("last_activity")
+  lastActivityAt  DateTime?         @map("last_activity_at")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+  messages        Message[]
+  threads         Thread[]
+
+  @@unique([campaignId, leadId])
+  @@index([state, nextDueAt])
+  @@index([campaignId, state])
+  @@map("campaign_leads")
+}
+
+enum MessageStatus {
+  queued
+  sent
+  failed
+}
+
+model Message {
+  id             String        @id @default(cuid())
+  campaignId     String        @map("campaign_id")
+  campaign       Campaign      @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  leadId         String        @map("lead_id")
+  lead           Lead          @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  stepId         String        @map("step_id")
+  step           SequenceStep  @relation(fields: [stepId], references: [id], onDelete: Cascade)
+  campaignLeadId String        @map("campaign_lead_id")
+  campaignLead   CampaignLead  @relation(fields: [campaignLeadId], references: [id], onDelete: Cascade)
+  accountId      String?       @map("account_id")
+  account        Account?      @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  stepPosition   Int           @map("step_position")
+  messageId      String?       @unique @map("message_id")
+  token          String        @unique
+  status         MessageStatus @default(queued)
+  subject        String        @default("")
+  bodyHtml       String        @default("") @map("body_html")
+  bodyText       String        @default("") @map("body_text")
+  toEmail        String        @default("") @map("to_email")
+  sentAt         DateTime?     @map("sent_at")
+  error          String?
+  retryCount     Int           @default(0) @map("retry_count")
+  nextRetryAt    DateTime?     @map("next_retry_at")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  events         Event[]
+
+  @@unique([campaignId, leadId, stepId])
+  @@index([accountId, sentAt])
+  @@index([campaignId, sentAt])
+  @@map("messages")
+}
+
+enum EventType {
+  sent
+  open
+  click
+  reply
+  auto_reply
+  bounce
+  unsubscribe
+}
+
+model Event {
+  id         String    @id @default(cuid())
+  messageId  String    @map("message_id")
+  message    Message   @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  campaignId String    @map("campaign_id")
+  leadId     String    @map("lead_id")
+  accountId  String?   @map("account_id")
+  stepId     String    @map("step_id")
+  type       EventType
+  url        String?
+  ip         String?
+  userAgent  String?   @map("user_agent")
+  at         DateTime  @default(now())
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @updatedAt @map("updated_at")
+
+  @@index([messageId, type])
+  @@index([campaignId, type, at])
+  @@index([type, at])
+  @@map("events")
+}
+
+model DailyStat {
+  id           String   @id @default(cuid())
+  date         String // YYYY-MM-DD in the app's default timezone
+  campaignId   String   @map("campaign_id")
+  accountId    String   @map("account_id")
+  sent         Int      @default(0)
+  opens        Int      @default(0)
+  clicks       Int      @default(0)
+  replies      Int      @default(0)
+  bounces      Int      @default(0)
+  unsubscribes Int      @default(0)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@unique([date, campaignId, accountId])
+  @@index([date])
+  @@map("daily_stats")
+}
+
+model Settings {
+  id              Int      @id @default(1)
+  adminEmail      String   @map("admin_email")
+  passwordHash    String   @map("password_hash")
+  trackingDomain  String   @default("") @map("tracking_domain")
+  defaultTimezone String   @default("UTC") @map("default_timezone")
+  delayUnit       String   @default("days") @map("delay_unit") // days | minutes (testing)
+  notifyEmail     String   @default("") @map("notify_email")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("settings")
+}
+
+// ---------- Unibox ----------
+
+model LeadLabel {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#3F3F46")
+  bg        String   @default("#F4F4F5")
+  position  Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  threads   Thread[]
+
+  @@map("lead_labels")
+}
+
+model Thread {
+  id             String        @id @default(cuid())
+  accountId      String        @map("account_id")
+  account        Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  leadId         String?       @map("lead_id")
+  lead           Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  campaignId     String?       @map("campaign_id")
+  campaign       Campaign?     @relation(fields: [campaignId], references: [id], onDelete: SetNull)
+  campaignLeadId String?       @map("campaign_lead_id")
+  campaignLead   CampaignLead? @relation(fields: [campaignLeadId], references: [id], onDelete: SetNull)
+  leadEmail      String        @map("lead_email")
+  leadName       String        @default("") @map("lead_name")
+  subject        String        @default("")
+  snippet        String        @default("")
+  lastMessageAt  DateTime      @map("last_message_at")
+  unread         Boolean       @default(true)
+  labelId        String?       @map("label_id")
+  label          LeadLabel?    @relation(fields: [labelId], references: [id], onDelete: SetNull)
+  isLead         Boolean       @default(true) @map("is_lead")
+  notes          String        @default("")
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  messages       InboxMessage[]
+
+  @@unique([accountId, leadEmail])
+  @@index([lastMessageAt])
+  @@map("threads")
+}
+
+model InboxMessage {
+  id          String    @id @default(cuid())
+  threadId    String    @map("thread_id")
+  thread      Thread    @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  accountId   String    @map("account_id")
+  account     Account   @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  direction   String // in | out
+  status      String    @default("sent") // sent | scheduled | failed (for outgoing)
+  messageId   String?   @map("message_id")
+  inReplyTo   String?   @map("in_reply_to")
+  references  String?
+  fromEmail   String    @map("from_email")
+  fromName    String    @default("") @map("from_name")
+  toEmail     String    @map("to_email")
+  subject     String    @default("")
+  bodyHtml    String    @default("") @map("body_html")
+  bodyText    String    @default("") @map("body_text")
+  isAutoReply Boolean   @default(false) @map("is_auto_reply")
+  receivedAt  DateTime  @map("received_at")
+  scheduledAt DateTime? @map("scheduled_at")
+  imapUid     Int?      @map("imap_uid")
+  imapFolder  String?   @map("imap_folder")
+  error       String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@unique([accountId, messageId])
+  @@index([threadId, receivedAt])
+  @@index([status, scheduledAt])
+  @@map("inbox_messages")
+}
+
+model ReplyTemplate {
+  id        String   @id @default(cuid())
+  name      String
+  subject   String   @default("")
+  bodyHtml  String   @map("body_html")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("reply_templates")
+}
