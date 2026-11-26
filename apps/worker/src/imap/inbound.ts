@@ -68,12 +68,10 @@ export async function processInbound(
   // 3. Match to a campaign email: In-Reply-To / References first, then sender address.
   const refs = [...idList(mail.inReplyTo), ...idList(mail.references as any)];
   let campaignMessage = refs.length ? await prisma.message.findFirst({ where: { messageId: { in: refs } }, orderBy: { sentAt: 'desc' } }) : null;
-  let outboundUnibox = !campaignMessage && refs.length ? await prisma.inboxMessage.findFirst({ where: { accountId: account.id, direction: 'out', messageId: { in: refs } }, include: { thread: true } }) : null;
+  const outboundUnibox = !campaignMessage && refs.length ? await prisma.inboxMessage.findFirst({ where: { accountId: account.id, direction: 'out', messageId: { in: refs } }, include: { thread: true } }) : null;
   if (!campaignMessage && !outboundUnibox) {
     campaignMessage = await prisma.message.findFirst({ where: { accountId: account.id, toEmail: from.address, status: 'sent' }, orderBy: { sentAt: 'desc' } });
   }
-  // A reply that came to a different mailbox than the one that sent: still attribute to the campaign
-  if (campaignMessage && campaignMessage.toEmail !== from.address && !refs.length) campaignMessage = null;
 
   let leadId: string | null = campaignMessage?.leadId ?? outboundUnibox?.thread.leadId ?? null;
   let campaignId: string | null = campaignMessage?.campaignId ?? outboundUnibox?.thread.campaignId ?? null;

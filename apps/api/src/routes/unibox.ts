@@ -154,12 +154,13 @@ export async function uniboxRoutes(app: FastifyInstance) {
     const baseSubject = lastIn?.subject || lastCampaign?.subject || t.subject || '';
 
     const vars = { ...(t.lead ? leadVars(t.lead) : { email: t.leadEmail }), senderName: t.account.fromName, senderEmail: t.account.email, signature: t.account.signatureHtml ? textToHtml(t.account.signatureHtml) : '' };
-    let html = substitute(textToHtml(b.bodyHtml), vars, { html: true, raw: ['signature'] }).text;
+    let html = substitute(textToHtml(b.bodyHtml), vars, { html: true, raw: ['signature'] }).text.replace(/<p>(\s|<br>)*<\/p>/g, '');
     const quoted = lastIn ?? null;
     if (b.quote && quoted) {
       const when = quoted.receivedAt.toUTCString().replace(' GMT', '');
       const q = quoted.bodyText ? escapeHtml(quoted.bodyText).replace(/\n/g, '<br>') : quoted.bodyHtml;
-      html += `<br><div>On ${escapeHtml(when)}, ${escapeHtml(quoted.fromName || quoted.fromEmail)} &lt;${escapeHtml(quoted.fromEmail)}&gt; wrote:</div><blockquote style="margin:0 0 0 .8ex;border-left:1px solid #ccc;padding-left:1ex">${q}</blockquote>`;
+      const who = quoted.fromName ? `${escapeHtml(quoted.fromName)} &lt;${escapeHtml(quoted.fromEmail)}&gt;` : escapeHtml(quoted.fromEmail);
+      html += `<br><div>On ${escapeHtml(when)}, ${who} wrote:</div><blockquote style="margin:0 0 0 .8ex;border-left:1px solid #ccc;padding-left:1ex">${q}</blockquote>`;
     }
     const text = htmlToText(html);
     const isForward = !!b.forwardTo;

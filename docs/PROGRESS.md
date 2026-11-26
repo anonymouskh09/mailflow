@@ -26,3 +26,14 @@ Newest entry last. Each phase is verified (typecheck, lint, tests, manual run ag
 - Verified end to end: a 3-step campaign over 3 accounts sent Step 1 from three different accounts in one tick, then the follow-ups from the same accounts, in thread (`In-Reply-To`/`References`), after the delay plus the account gap (Mailpit).
 - Dev setting: `DELAY_UNIT=minutes` (or Settings → Advanced) turns step delays into minutes.
 - Phase 3 work started in the same commit: tracking routes, IMAP inbound processor, Unibox and analytics APIs (not yet verified end to end).
+
+## Phase 3 – Tracking, reply detection, Unibox, Analytics ✅
+
+- Public tracking routes: `/o/<token>.gif` open pixel, `/c/<token>?u=&s=` signed click redirect (forged links rejected, scanner clicks within 15 s / known bot user-agents ignored), `/u/<token>` unsubscribe page + RFC 8058 one-click POST, `List-Unsubscribe` header on every campaign email.
+- IMAP worker (`apps/worker/src/imap`): IDLE watcher (one leader process) for near-instant pickup plus 2-minute polling; per-account Redis lock; first sync only reads mail since the account was connected.
+- Inbound classification: warmup (header/code) → warmup receiver; bounces (DSN parsing, Message-ID or recipient match) → bounced + suppressed; replies matched by `In-Reply-To`/`References`, then sender address; auto-replies (headers + phrases) labelled "Out of office" and do not stop the sequence unless the campaign says so; emails from any known lead are kept; newsletters ignored.
+- Unibox: conversation list (search incl. message text, Filter by label/campaign/account/date, All/Unread/Interested), thread with campaign emails + replies, label dropdown, ⋯ actions (unread, not a lead, move to campaign, suppress), lead panel with notes, reply box with variables, signature, saved templates, schedule send and forward. Replies go from the same account in the same thread and a copy is appended to the mailbox's Sent folder (Gmail does this itself). Read/unread is synced back to the mailbox (`\Seen`).
+- Analytics home: KPI cards with change vs the previous period and "tracking off" handling, daily chart (Recharts), campaigns table, account-health table; custom date range and Filter (campaign, account). `daily_stats` roll-up every 2 minutes.
+- Settings page: tracking domain, timezone, password, SPF/DKIM/DMARC DNS check, suppression list, labels, saved replies, testing delay toggle under Advanced.
+- Tests: 9 inbound tests, 11 API tests (auth, rate limit, tracking, unsubscribe, import, launch validation, preview).
+- Verified against a real SMTP/IMAP server (GreenMail): campaign email delivered; open + click recorded; lead's reply detected 6 s later via IDLE, lead stopped, shown in the Unibox; reply sent from the Unibox arrived in the lead's inbox with the right `In-Reply-To` (same thread) and was saved to Sent; events visible on Analytics within the roll-up interval.
