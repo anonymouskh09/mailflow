@@ -10,5 +10,6 @@ export * from './usage.js';
 export * from './warmup.js';
 export * from './send.js';
 export * from './accounts.js';
+export * from './campaign.js';
 export * from './mail/google.js';
 export * from './mail/transport.js';

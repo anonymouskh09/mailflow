@@ -9,9 +9,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': 'http://localhost:3000',
-      '/o': 'http://localhost:3000',
-      '/c': 'http://localhost:3000',
-      '/u': 'http://localhost:3000',
+      // tracking routes (exact prefixes so /campaigns, /unibox are not proxied)
+      '^/(o|c|u)/': 'http://localhost:3000',
     },
   },
 });

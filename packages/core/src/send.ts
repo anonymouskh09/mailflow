@@ -77,3 +77,19 @@ export async function appendToSent(account: MailAccount & { provider?: string },
     await client.logout().catch(() => {});
   }
 }
+
+/** Set or clear \Seen on INBOX messages (Unibox read/unread sync). */
+export async function setSeenFlags(account: MailAccount, uids: number[], seen: boolean): Promise<void> {
+  if (!uids.length) return;
+  const client = await createImapClient(account);
+  client.on('error', () => {});
+  await client.connect();
+  try {
+    await client.mailboxOpen('INBOX');
+    const set = uids.join(',');
+    if (seen) await client.messageFlagsAdd(set, ['\\Seen'], { uid: true });
+    else await client.messageFlagsRemove(set, ['\\Seen'], { uid: true });
+  } finally {
+    await client.logout().catch(() => {});
+  }
+}

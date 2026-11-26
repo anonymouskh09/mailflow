@@ -91,7 +91,7 @@ describe('renderEmail', () => {
     expect(out.missing).not.toContain('firstName'); // body uses a fallback
   });
   it('htmlToText keeps paragraphs', () => {
-    expect(htmlToText('<p>a</p><p>b<br>c</p>')).toBe('a\nb\nc');
+    expect(htmlToText('<p>a</p><p>b<br>c</p>')).toBe('a\n\nb\nc');
   });
 });
 

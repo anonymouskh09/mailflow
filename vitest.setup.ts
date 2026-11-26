@@ -4,3 +4,7 @@ process.env.ENCRYPTION_KEY ??= '0'.repeat(64);
 process.env.SESSION_SECRET ??= 'test-session-secret-test-session-secret';
 process.env.APP_URL ??= 'http://localhost:3000';
 process.env.TRACKING_URL ??= 'http://localhost:3000';
+process.env.DELAY_UNIT = 'days';
+process.env.DEV_IGNORE_SCHEDULE = 'false';
+process.env.DEV_SMTP_OVERRIDE = '';
+process.env.VITEST = '1';

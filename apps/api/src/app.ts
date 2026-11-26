@@ -11,6 +11,11 @@ import { HttpError } from './util.js';
 import { accountRoutes } from './routes/accounts.js';
 import { googleRoutes } from './routes/google.js';
 import { settingsRoutes } from './routes/settings.js';
+import { leadRoutes } from './routes/leads.js';
+import { campaignRoutes } from './routes/campaigns.js';
+import { trackingRoutes } from './routes/tracking.js';
+import { uniboxRoutes } from './routes/unibox.js';
+import { analyticsRoutes } from './routes/analytics.js';
 
 const PUBLIC = [/^\/api\/auth\/(login|logout|me)$/, /^\/api\/health$/];
 
@@ -49,6 +54,11 @@ export async function buildApp(opts: { logger?: boolean } = {}) {
   await app.register(accountRoutes);
   await app.register(googleRoutes);
   await app.register(settingsRoutes);
+  await app.register(leadRoutes);
+  await app.register(campaignRoutes);
+  await app.register(trackingRoutes);
+  await app.register(uniboxRoutes);
+  await app.register(analyticsRoutes);
 
   // Production: serve the built dashboard with SPA fallback.
   const webDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../web/dist');

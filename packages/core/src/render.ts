@@ -87,7 +87,8 @@ export function htmlToText(html: string): string {
         return t && t !== href ? `${t} (${href})` : href;
       })
       .replace(/<br\s*\/?>/gi, '\n')
-      .replace(/<\/(p|div|h[1-6]|li|tr|blockquote)>/gi, '\n')
+      .replace(/<\/(p|h[1-6]|blockquote)>/gi, '\n\n')
+      .replace(/<\/(div|li|tr)>/gi, '\n')
       .replace(/<li[^>]*>/gi, '- ')
       .replace(/<[^>]+>/g, ''),
   )
