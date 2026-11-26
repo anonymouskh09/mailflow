@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Unibox</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F7F7F8;font-family:Inter,system-ui,sans-serif;color:#18181B}
+a{color:#4F46E5;text-decoration:none}a:hover{color:#3730A3}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border-radius:8px;color:#3F3F46;font-size:14px;font-weight:500}
+.nav:hover{background:#F4F4F5;color:#18181B}.nav.on{background:#EEF2FF;color:#3730A3}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:8px;border:1px solid #E4E4E7;background:#fff;color:#18181B;font:500 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.btn.pri{background:#4F46E5;border-color:#4F46E5;color:#fff}.btn.ico{width:40px;padding:0;justify-content:center}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500}
+.muted{color:#52525B}
+.seg{height:32px;padding:0 12px;border:0;border-radius:6px;background:none;font:500 13px Inter,sans-serif;color:#52525B;cursor:pointer}
+.seg.on{background:#fff;color:#18181B;box-shadow:0 1px 2px rgba(24,24,27,.08)}
+.kv{display:flex;justify-content:space-between;gap:12px;font-size:13px;padding:6px 0}
+</style>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:900px">
+<aside style="flex:1 1 220px;box-sizing:border-box;padding:20px 12px;background:#fff;border-right:1px solid #E4E4E7;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;align-items:center;gap:10px;padding:0 12px 20px;font-weight:700;font-size:17px"><span style="width:28px;height:28px;border-radius:8px;background:#4F46E5;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></span>MailFlow</div>
+<a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Analytics</a>
+<a class="nav" href="Accounts.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email accounts</a>
+<a class="nav" href="Campaigns.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>Campaigns</a>
+<a class="nav on" href="Unibox.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v7H2v-7z"/></svg>Unibox<span class="pill" style="margin-left:auto;background:#4F46E5;color:#fff">12</span></a>
+<div style="flex:1"></div>
+<a class="nav" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Settings</a>
+</aside>
+<main style="flex:999 1 560px;min-width:0;display:flex;flex-wrap:wrap;align-items:stretch">
+<section style="flex:1 1 300px;max-width:360px;box-sizing:border-box;background:#fff;border-right:1px solid #E4E4E7;display:flex;flex-direction:column">
+<div style="padding:20px 16px 12px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid #F0F0F2">
+<div style="display:flex;align-items:center;gap:8px"><h1 style="margin:0;font-size:20px;font-weight:700;flex:1">Unibox</h1><button class="btn ico" aria-label="Filter by label, campaign or account"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg></button></div>
+<input type="search" aria-label="Search conversations" placeholder="Search name, company, text" style="height:40px;box-sizing:border-box;padding:0 12px;border:1px solid #E4E4E7;border-radius:8px;font:400 14px Inter,sans-serif">
+<div role="tablist" aria-label="Show" style="display:inline-flex;align-self:flex-start;gap:2px;padding:3px;border-radius:8px;background:#EDEDF0"><button class="seg on" role="tab" aria-selected="true">All</button><button class="seg" role="tab">Unread 12</button><button class="seg" role="tab">Interested</button></div>
+</div>
+<sc-for list="{{threads}}" as="t" hint-placeholder-count="7"><button style="display:block;width:100%;text-align:left;border:0;border-bottom:1px solid #F0F0F2;padding:14px 16px;background:{{t.bg}};font-family:Inter;cursor:pointer;box-shadow:{{t.bar}}">
+<span style="display:flex;align-items:center;gap:8px"><sc-if value="{{t.unread}}" hint-placeholder-val="{{false}}"><span style="width:8px;height:8px;border-radius:50%;background:#4F46E5"></span></sc-if><span style="font-size:14px;font-weight:{{t.w}};color:#18181B;flex:1">{{t.name}}</span><span class="muted" style="font-size:12px">{{t.time}}</span></span>
+<span style="display:block;font-size:13px;color:#52525B;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{t.snip}}</span>
+<sc-if value="{{t.label}}" hint-placeholder-val="{{true}}"><span class="pill" style="margin-top:8px;background:{{t.lbg}};color:{{t.lfg}}">{{t.label}}</span></sc-if>
+</button></sc-for>
+</section>
+<section style="flex:999 1 420px;min-width:0;display:flex;flex-direction:column;background:#F7F7F8">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:16px 24px;background:#fff;border-bottom:1px solid #E4E4E7">
+<div style="flex:1 1 220px;min-width:0"><div style="font-weight:600;font-size:16px">James Carter</div><div class="muted" style="font-size:13px">Re: Quick question, James · via ali@growthmail.co</div></div>
+<button class="btn" style="color:#166534"><span style="width:8px;height:8px;border-radius:50%;background:#15803D"></span>Interested<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+<button class="btn ico" aria-label="Conversation actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+</div>
+<div style="flex:1;padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+<article style="background:#fff;border:1px solid #E4E4E7;border-radius:12px;padding:16px 18px;max-width:640px">
+<div style="display:flex;gap:8px;font-size:13px;margin-bottom:8px"><span style="font-weight:600">Ali Khan</span><span class="muted" style="flex:1">to james@carterhale.co.uk</span><span class="muted">Mon 10:14 · Step 1</span></div>
+<p style="margin:0;font-size:14px;line-height:1.6;color:#3F3F46">Hi James, noticed Carter &amp; Hale handles a lot of new client enquiries by email. We help UK firms answer and book those in under 5 minutes. Worth a quick chat this week?</p>
+</article>
+<article style="background:#fff;border:1px solid #E4E4E7;border-radius:12px;padding:16px 18px;max-width:640px">
+<div style="display:flex;gap:8px;font-size:13px;margin-bottom:8px"><span style="font-weight:600">Ali Khan</span><span class="muted" style="flex:1">to james@carterhale.co.uk</span><span class="muted">Wed 09:52 · Step 2</span></div>
+<p style="margin:0;font-size:14px;line-height:1.6;color:#3F3F46">Just floating this back up — happy to send a 2-minute walkthrough if that's easier.</p>
+</article>
+<article style="background:#EEF2FF;border:1px solid #C7D2FE;border-radius:12px;padding:16px 18px;max-width:640px;align-self:flex-end">
+<div style="display:flex;gap:8px;font-size:13px;margin-bottom:8px"><span style="font-weight:600">James Carter</span><span class="muted" style="flex:1"></span><span class="muted">Today 11:03</span></div>
+<p style="margin:0;font-size:14px;line-height:1.6;color:#18181B">Hi Ali, timing is good actually. Could you do Thursday afternoon? Please send the walkthrough too.</p>
+</article>
+</div>
+<div style="margin:0 24px 24px;background:#fff;border:1px solid #E4E4E7;border-radius:12px">
+<div class="muted" style="font-size:12px;padding:10px 14px 0">Reply from ali@growthmail.co · same thread</div>
+<textarea aria-label="Reply" placeholder="Write a reply…" style="display:block;width:100%;box-sizing:border-box;height:96px;border:0;padding:10px 14px;font:400 14px Inter,sans-serif;resize:none;outline:none"></textarea>
+<div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid #F0F0F2">
+<button class="btn" style="height:36px">Templates<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+<span style="flex:1"></span>
+<button class="btn pri" style="height:36px">Send<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+</div>
+</div>
+</section>
+<section style="flex:1 1 240px;max-width:300px;box-sizing:border-box;background:#fff;border-left:1px solid #E4E4E7;padding:20px">
+<div style="width:44px;height:44px;border-radius:50%;background:#F4F4F5;display:flex;align-items:center;justify-content:center;font-weight:600;color:#3F3F46">JC</div>
+<div style="font-weight:600;font-size:16px;margin-top:10px">James Carter</div>
+<div class="muted" style="font-size:13px">james@carterhale.co.uk</div>
+<div style="margin-top:16px;border-top:1px solid #F0F0F2;padding-top:10px">
+<sc-for list="{{info}}" as="i" hint-placeholder-count="6"><div class="kv"><span class="muted">{{i.k}}</span><span style="font-weight:500;text-align:right">{{i.v}}</span></div></sc-for>
+</div>
+<label style="display:block;margin-top:14px"><span style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:#3F3F46">Notes</span><textarea placeholder="Add a note" style="width:100%;box-sizing:border-box;height:80px;border:1px solid #E4E4E7;border-radius:8px;padding:8px 10px;font:400 13px Inter,sans-serif;resize:vertical"></textarea></label>
+</section>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const L = { Interested: ['#DCFCE7', '#166534'], 'Meeting booked': ['#DBEAFE', '#1E40AF'], 'Out of office': ['#FEF3C7', '#92400E'], 'Not interested': ['#F4F4F5', '#3F3F46'] };
+    const threads = [
+      ['James Carter', '11:03', 'Hi Ali, timing is good actually. Could you do Thursday…', 'Interested', true, true],
+      ['Sophie Hall', '09:40', 'Thanks — can you share pricing for a team of 8?', 'Interested', true, false],
+      ['Daniel Moore', 'Yesterday', 'I am out of the office until 2 December…', 'Out of office', true, false],
+      ['Grace Lee', 'Yesterday', 'Booked for Tuesday 3pm, see you then.', 'Meeting booked', false, false],
+      ['Ryan Clarke', 'Mon', 'Not a priority for us right now, thanks.', 'Not interested', false, false],
+      ['Amelia King', 'Mon', 'Who handles this on your side?', '', false, false]
+    ].map(([name, time, snip, label, unread, sel]) => ({
+      name, time, snip, label, unread,
+      w: unread ? 600 : 500, bg: sel ? '#F5F5FF' : '#fff', bar: sel ? 'inset 3px 0 0 #4F46E5' : 'none',
+      lbg: label ? L[label][0] : '', lfg: label ? L[label][1] : ''
+    }));
+    return {
+      threads,
+      info: [
+        { k: 'Company', v: 'Carter & Hale LLP' }, { k: 'Campaign', v: 'Agencies – UK Q4' }, { k: 'Reached', v: 'Step 2 of 4' },
+        { k: 'Status', v: 'Replied' }, { k: 'City', v: 'London' }, { k: 'Sending account', v: 'ali@growthmail.co' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

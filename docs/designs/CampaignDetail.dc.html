@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Campaign detail</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F7F7F8;font-family:Inter,system-ui,sans-serif;color:#18181B}
+a{color:#4F46E5;text-decoration:none}a:hover{color:#3730A3}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border-radius:8px;color:#3F3F46;font-size:14px;font-weight:500}
+.nav:hover{background:#F4F4F5;color:#18181B}.nav.on{background:#EEF2FF;color:#3730A3}
+.card{background:#fff;border:1px solid #E4E4E7;border-radius:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:8px;border:1px solid #E4E4E7;background:#fff;color:#18181B;font:500 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.btn.ico{width:40px;padding:0;justify-content:center}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:#52525B;font-size:12px;padding:10px 16px;border-bottom:1px solid #E4E4E7;white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid #F0F0F2;white-space:nowrap}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500}
+.muted{color:#52525B}
+.seg{height:34px;padding:0 12px;border:0;border-radius:6px;background:none;font:500 13px Inter,sans-serif;color:#52525B;cursor:pointer}
+.seg.on{background:#fff;color:#18181B;box-shadow:0 1px 2px rgba(24,24,27,.08)}
+</style>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:1000px">
+<aside style="flex:1 1 220px;box-sizing:border-box;padding:20px 12px;background:#fff;border-right:1px solid #E4E4E7;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;align-items:center;gap:10px;padding:0 12px 20px;font-weight:700;font-size:17px"><span style="width:28px;height:28px;border-radius:8px;background:#4F46E5;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></span>MailFlow</div>
+<a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Analytics</a>
+<a class="nav" href="Accounts.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email accounts</a>
+<a class="nav on" href="Campaigns.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>Campaigns</a>
+<a class="nav" href="Unibox.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v7H2v-7z"/></svg>Unibox<span class="pill" style="margin-left:auto;background:#4F46E5;color:#fff">12</span></a>
+<div style="flex:1"></div>
+<a class="nav" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Settings</a>
+</aside>
+<main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+<div>
+<a href="Campaigns.dc.html" style="font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>Campaigns</a>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:8px">
+<h1 style="margin:0;font-size:24px;font-weight:700">Agencies – UK Q4</h1>
+<span class="pill" style="background:#DCFCE7;color:#166534">Active</span>
+<span class="muted" style="font-size:13px;flex:1 1 auto">4 steps · 6 accounts · Mon–Fri 09:00–17:00</span>
+<button class="btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>Pause</button>
+<button class="btn ico" aria-label="More campaign actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+<sc-for list="{{kpis}}" as="k" hint-placeholder-count="5"><div class="card" style="padding:16px 18px"><div class="muted" style="font-size:13px;font-weight:500">{{k.l}}</div><div style="font-size:26px;font-weight:700;margin-top:6px">{{k.v}}</div><div class="muted" style="font-size:12px;margin-top:4px">{{k.s}}</div></div></sc-for>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<section class="card" style="flex:1 1 340px;min-width:0;overflow:hidden">
+<h2 style="margin:0;font-size:16px;font-weight:600;padding:16px 16px 8px">By step</h2>
+<div style="overflow-x:auto"><table><thead><tr><th>Step</th><th>Sent</th><th>Opened</th><th>Replied</th></tr></thead>
+<tbody><sc-for list="{{steps}}" as="s" hint-placeholder-count="4"><tr><td style="font-weight:500">{{s.n}}</td><td>{{s.sent}}</td><td>{{s.open}}</td><td>{{s.reply}}</td></tr></sc-for></tbody></table></div>
+</section>
+<section class="card" style="flex:3 1 600px;min-width:0;overflow:hidden">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 16px">
+<div role="tablist" aria-label="Lead status" style="display:inline-flex;flex-wrap:wrap;gap:2px;padding:3px;border-radius:8px;background:#EDEDF0;flex:1 1 auto;max-width:max-content">
+<button class="seg on" role="tab" aria-selected="true">All</button><button class="seg" role="tab">In sequence</button><button class="seg" role="tab">Replied</button><button class="seg" role="tab">Completed</button><button class="seg" role="tab">Bounced</button>
+</div>
+<span style="flex:1"></span>
+<input type="search" aria-label="Search leads" placeholder="Search leads" style="height:40px;width:200px;box-sizing:border-box;padding:0 12px;border:1px solid #E4E4E7;border-radius:8px;font:400 14px Inter,sans-serif">
+<button class="btn ico" aria-label="Lead table actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+</div>
+<div style="overflow-x:auto"><table><thead><tr><th>Lead</th><th>Status</th><th>Step</th><th>Last activity</th><th>Sending account</th></tr></thead>
+<tbody><sc-for list="{{leads}}" as="r" hint-placeholder-count="8"><tr>
+<td><span style="display:block;font-weight:500">{{r.name}}</span><span class="muted" style="font-size:12px">{{r.email}}</span></td>
+<td><span class="pill" style="background:{{r.bg}};color:{{r.fg}}">{{r.status}}</span></td>
+<td class="muted">{{r.step}}</td><td class="muted">{{r.last}}</td><td class="muted">{{r.acct}}</td>
+</tr></sc-for></tbody></table></div>
+</section>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = { 'In sequence': ['#EEF2FF', '#3730A3'], Replied: ['#DCFCE7', '#166534'], Completed: ['#F4F4F5', '#3F3F46'], Bounced: ['#FEE2E2', '#991B1B'], Unsubscribed: ['#FEF3C7', '#92400E'] };
+    const leads = [
+      ['James Carter', 'james@carterhale.co.uk', 'Replied', 'Step 2', 'Replied · 2h ago', 'ali@growthmail.co'],
+      ['Emma Wright', 'emma@brightpixel.uk', 'In sequence', 'Step 3', 'Opened · 5h ago', 'sara@growthmail.co'],
+      ['Liam Patel', 'liam@northlabs.io', 'In sequence', 'Step 2', 'Sent · today 10:42', 'team@reachly.io'],
+      ['Olivia Brown', 'olivia@studiooak.co', 'Completed', 'Step 4', 'Sent · 3d ago', 'dan@growthmail.co'],
+      ['Noah Evans', 'noah@evansmedia.com', 'Bounced', 'Step 1', 'Bounced · 6d ago', 'hello@leadnest.com'],
+      ['Sophie Hall', 'sophie@hallcreative.uk', 'Replied', 'Step 1', 'Replied · yesterday', 'zara@leadnest.com'],
+      ['Jack Turner', 'jack@turnerdigital.co', 'In sequence', 'Step 1', 'Clicked · 1h ago', 'ali@growthmail.co'],
+      ['Mia Scott', 'mia@scottandco.uk', 'Unsubscribed', 'Step 2', 'Unsubscribed · 4d ago', 'sara@growthmail.co']
+    ].map(([name, email, status, step, last, acct]) => ({ name, email, status, step, last, acct, bg: S[status][0], fg: S[status][1] }));
+    return {
+      kpis: [
+        { l: 'Leads contacted', v: '1,920', s: 'of 3,000 · 64%' }, { l: 'Opened', v: '54%', s: '1,037 leads' },
+        { l: 'Clicked', v: '6.3%', s: '121 leads' }, { l: 'Replied', v: '5.2%', s: '100 leads' }, { l: 'Bounced', v: '0.9%', s: '17 leads' }
+      ],
+      steps: [
+        { n: 'Step 1', sent: '1,920', open: '52%', reply: '2.9%' }, { n: 'Step 2 · +2d', sent: '1,410', open: '41%', reply: '1.6%' },
+        { n: 'Step 3 · +3d', sent: '960', open: '35%', reply: '0.9%' }, { n: 'Step 4 · +4d', sent: '420', open: '33%', reply: '0.7%' }
+      ],
+      leads
+    };
+  }
+}
+</script>
+</body>
+</html>

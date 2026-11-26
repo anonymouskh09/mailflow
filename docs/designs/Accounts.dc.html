@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Email accounts</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F7F7F8;font-family:Inter,system-ui,sans-serif;color:#18181B}
+a{color:#4F46E5;text-decoration:none}a:hover{color:#3730A3}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border-radius:8px;color:#3F3F46;font-size:14px;font-weight:500}
+.nav:hover{background:#F4F4F5;color:#18181B}.nav.on{background:#EEF2FF;color:#3730A3}
+.card{background:#fff;border:1px solid #E4E4E7;border-radius:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:8px;border:1px solid #E4E4E7;background:#fff;color:#18181B;font:500 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.btn.pri{background:#4F46E5;border-color:#4F46E5;color:#fff}.btn.ico{width:40px;padding:0;justify-content:center}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:#52525B;font-size:12px;padding:10px 16px;border-bottom:1px solid #E4E4E7;white-space:nowrap}
+td{padding:12px 16px;border-bottom:1px solid #F0F0F2;white-space:nowrap}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500}
+.muted{color:#52525B}
+.mi{display:block;width:100%;text-align:left;padding:9px 12px;border:0;background:none;border-radius:6px;font:400 14px Inter,sans-serif;color:#18181B;cursor:pointer}.mi:hover{background:#F4F4F5}
+</style>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:900px">
+<aside style="flex:1 1 220px;box-sizing:border-box;padding:20px 12px;background:#fff;border-right:1px solid #E4E4E7;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;align-items:center;gap:10px;padding:0 12px 20px;font-weight:700;font-size:17px"><span style="width:28px;height:28px;border-radius:8px;background:#4F46E5;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></span>MailFlow</div>
+<a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Analytics</a>
+<a class="nav on" href="Accounts.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email accounts</a>
+<a class="nav" href="Campaigns.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>Campaigns</a>
+<a class="nav" href="Unibox.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v7H2v-7z"/></svg>Unibox<span class="pill" style="margin-left:auto;background:#4F46E5;color:#fff">12</span></a>
+<div style="flex:1"></div>
+<a class="nav" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Settings</a>
+</aside>
+<main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+<div style="flex:1 1 240px"><h1 style="margin:0;font-size:24px;font-weight:700">Email accounts</h1><p class="muted" style="margin:4px 0 0;font-size:14px">24 accounts · 21 active · 1 needs attention</p></div>
+<label style="position:relative;display:inline-flex"><span style="position:absolute;left:12px;top:12px;color:#71717A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><input type="search" aria-label="Search accounts" placeholder="Search accounts" style="height:40px;width:240px;box-sizing:border-box;padding:0 12px 0 36px;border:1px solid #E4E4E7;border-radius:8px;font:400 14px Inter,sans-serif"></label>
+<button class="btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8v6l-4 2v-8z"/></svg>Filter</button>
+<a class="btn pri" href="AddAccount.dc.html" style="color:#fff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add accounts</a>
+</div>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;background:#EEF2FF;color:#3730A3;font-size:14px">
+<span style="font-weight:600;flex:1 1 auto">3 selected</span>
+<button class="btn" style="height:36px">Turn warmup on</button>
+<button class="btn" style="height:36px">Pause</button>
+<button class="btn ico" style="height:36px;width:36px" aria-label="More bulk actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+</div>
+<div class="card" style="overflow:visible">
+<div style="overflow-x:auto;overflow-y:visible;min-height:520px"><table>
+<thead><tr><th style="width:20px"><input type="checkbox" aria-label="Select all"></th><th>Account</th><th>Provider</th><th>Status</th><th>Warmup score</th><th>Sent today</th><th>Warmup</th><th></th></tr></thead>
+<tbody><sc-for list="{{rows}}" as="r" hint-placeholder-count="7"><tr>
+<td><input type="checkbox" checked="{{r.sel}}" aria-label="Select account"></td>
+<td><a href="AccountDetail.dc.html" style="display:flex;align-items:center;gap:10px;color:#18181B"><span style="width:32px;height:32px;border-radius:50%;background:#F4F4F5;display:inline-flex;align-items:center;justify-content:center;font-weight:600;font-size:13px;color:#3F3F46">{{r.init}}</span><span><span style="display:block;font-weight:500">{{r.email}}</span><span class="muted" style="font-size:12px">{{r.name}}</span></span></a></td>
+<td class="muted">{{r.provider}}</td>
+<td><span class="pill" style="background:{{r.bg}};color:{{r.fg}}">{{r.status}}</span></td>
+<td><div style="display:flex;align-items:center;gap:8px"><div style="width:64px;height:6px;border-radius:3px;background:#F0F0F2"><div style="height:6px;border-radius:3px;background:{{r.sc}};width:{{r.scoreW}}"></div></div><span style="font-weight:600">{{r.score}}</span></div></td>
+<td class="muted">{{r.today}}</td>
+<td><button role="switch" aria-checked="{{r.wu}}" aria-label="Warmup" style="width:40px;height:24px;border-radius:12px;border:0;padding:2px;background:{{r.swBg}};display:flex;justify-content:{{r.swJ}};cursor:pointer"><span style="width:20px;height:20px;border-radius:50%;background:#fff"></span></button></td>
+<td style="position:relative;text-align:right"><button class="btn ico" style="border-color:transparent" aria-label="Account actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+<sc-if value="{{r.menu}}" hint-placeholder-val="{{false}}"><div class="card" style="position:absolute;right:16px;top:52px;z-index:5;width:200px;padding:6px;text-align:left;box-shadow:0 8px 24px rgba(24,24,27,.12)">
+<button class="mi">Edit settings</button><button class="mi">Reconnect</button><button class="mi">Pause sending</button><button class="mi">Copy to campaign</button>
+<div style="height:1px;background:#F0F0F2;margin:4px 0"></div><button class="mi" style="color:#B91C1C">Remove account</button></div></sc-if>
+</td>
+</tr></sc-for></tbody>
+</table></div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = { Active: ['#DCFCE7', '#166534'], Error: ['#FEE2E2', '#991B1B'], 'Limit reached': ['#FEF3C7', '#92400E'], Paused: ['#F4F4F5', '#3F3F46'] };
+    const rows = [
+      ['ali@growthmail.co', 'Ali Khan', 'Google', 'Active', 98, '28 / 30', true, true],
+      ['sara@growthmail.co', 'Sara Ahmed', 'Google', 'Limit reached', 96, '30 / 30', true, true],
+      ['team@reachly.io', 'Reachly Team', 'Google', 'Active', 91, '19 / 30', true, true],
+      ['hello@leadnest.com', 'Hamza Ali', 'SMTP', 'Active', 84, '12 / 30', true, false],
+      ['omar@reachly.io', 'Omar Farooq', 'Outlook', 'Error', 72, '0 / 30', true, false],
+      ['zara@leadnest.com', 'Zara Malik', 'SMTP', 'Active', 88, '17 / 30', false, false],
+      ['info@pixelpeak.net', 'Usman Raza', 'SMTP', 'Paused', 64, '0 / 30', false, false]
+    ].map(([email, name, provider, status, score, today, wu, sel], i) => ({
+      email, name, provider, status, score, today, sel, wu,
+      init: name.charAt(0), bg: S[status][0], fg: S[status][1],
+      sc: score >= 90 ? '#15803D' : score >= 80 ? '#B45309' : '#B91C1C', scoreW: score + '%',
+      swBg: wu ? '#4F46E5' : '#D4D4D8', swJ: wu ? 'flex-end' : 'flex-start', menu: i === 4
+    }));
+    return { rows };
+  }
+}
+</script>
+</body>
+</html>

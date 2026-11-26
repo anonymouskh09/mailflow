@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Campaigns</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F7F7F8;font-family:Inter,system-ui,sans-serif;color:#18181B}
+a{color:#4F46E5;text-decoration:none}a:hover{color:#3730A3}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border-radius:8px;color:#3F3F46;font-size:14px;font-weight:500}
+.nav:hover{background:#F4F4F5;color:#18181B}.nav.on{background:#EEF2FF;color:#3730A3}
+.card{background:#fff;border:1px solid #E4E4E7;border-radius:12px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:8px;border:1px solid #E4E4E7;background:#fff;color:#18181B;font:500 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.btn.pri{background:#4F46E5;border-color:#4F46E5;color:#fff}.btn.ico{width:40px;padding:0;justify-content:center}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-weight:500;color:#52525B;font-size:12px;padding:10px 16px;border-bottom:1px solid #E4E4E7;white-space:nowrap}
+td{padding:14px 16px;border-bottom:1px solid #F0F0F2;white-space:nowrap}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500}
+.muted{color:#52525B}
+.seg{height:34px;padding:0 12px;border:0;border-radius:6px;background:none;font:500 13px Inter,sans-serif;color:#52525B;cursor:pointer}
+.seg.on{background:#fff;color:#18181B;box-shadow:0 1px 2px rgba(24,24,27,.08)}
+</style>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:900px">
+<aside style="flex:1 1 220px;box-sizing:border-box;padding:20px 12px;background:#fff;border-right:1px solid #E4E4E7;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;align-items:center;gap:10px;padding:0 12px 20px;font-weight:700;font-size:17px"><span style="width:28px;height:28px;border-radius:8px;background:#4F46E5;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></span>MailFlow</div>
+<a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Analytics</a>
+<a class="nav" href="Accounts.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email accounts</a>
+<a class="nav on" href="Campaigns.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>Campaigns</a>
+<a class="nav" href="Unibox.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v7H2v-7z"/></svg>Unibox<span class="pill" style="margin-left:auto;background:#4F46E5;color:#fff">12</span></a>
+<div style="flex:1"></div>
+<a class="nav" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Settings</a>
+</aside>
+<main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:20px">
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+<div style="flex:1 1 240px"><h1 style="margin:0;font-size:24px;font-weight:700">Campaigns</h1><p class="muted" style="margin:4px 0 0;font-size:14px">7 campaigns · 2 active</p></div>
+<label style="position:relative;display:inline-flex"><span style="position:absolute;left:12px;top:12px;color:#71717A"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><input type="search" aria-label="Search campaigns" placeholder="Search campaigns" style="height:40px;width:240px;box-sizing:border-box;padding:0 12px 0 36px;border:1px solid #E4E4E7;border-radius:8px;font:400 14px Inter,sans-serif"></label>
+<a class="btn pri" href="CampaignSequence.dc.html" style="color:#fff"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New campaign</a>
+</div>
+<div role="tablist" aria-label="Status" style="display:inline-flex;align-self:flex-start;flex-wrap:wrap;gap:2px;padding:3px;border-radius:8px;background:#EDEDF0">
+<button class="seg on" role="tab" aria-selected="true">All 7</button><button class="seg" role="tab">Active 2</button><button class="seg" role="tab">Paused 1</button><button class="seg" role="tab">Draft 2</button><button class="seg" role="tab">Completed 2</button>
+</div>
+<div class="card" style="overflow:hidden"><div style="overflow-x:auto"><table>
+<thead><tr><th>Campaign</th><th>Status</th><th>Leads</th><th>Progress</th><th>Sent</th><th>Opened</th><th>Replied</th><th></th></tr></thead>
+<tbody><sc-for list="{{rows}}" as="r" hint-placeholder-count="7"><tr>
+<td><a href="CampaignDetail.dc.html" style="color:#18181B;font-weight:500;display:block">{{r.name}}</a><span class="muted" style="font-size:12px">{{r.meta}}</span></td>
+<td><span class="pill" style="background:{{r.bg}};color:{{r.fg}}">{{r.status}}</span></td>
+<td>{{r.leads}}</td>
+<td><div style="display:flex;align-items:center;gap:8px"><div style="width:100px;height:6px;border-radius:3px;background:#F0F0F2"><div style="height:6px;border-radius:3px;background:#4F46E5;width:{{r.pct}}"></div></div><span class="muted" style="font-size:12px">{{r.pct}}</span></div></td>
+<td>{{r.sent}}</td><td>{{r.open}}</td><td>{{r.reply}}</td>
+<td style="text-align:right"><button class="btn ico" style="border-color:transparent" aria-label="Campaign actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button></td>
+</tr></sc-for></tbody>
+</table></div></div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const S = { Active: ['#DCFCE7', '#166534'], Paused: ['#FEF3C7', '#92400E'], Completed: ['#F4F4F5', '#3F3F46'], Draft: ['#EEF2FF', '#3730A3'] };
+    const rows = [
+      ['Agencies – UK Q4', 'Created 12 Nov · 4 steps · 6 accounts', 'Active', '3,000', '64%', '1,920', '54%', '5.2%'],
+      ['SaaS founders – US', 'Created 18 Nov · 3 steps · 4 accounts', 'Active', '3,000', '38%', '1,140', '49%', '4.1%'],
+      ['Real estate – Dubai', 'Created 20 Nov · 3 steps · 3 accounts', 'Paused', '2,800', '22%', '610', '57%', '6.0%'],
+      ['Ecommerce – follow-up', 'Created 2 Nov · 2 steps · 5 accounts', 'Completed', '1,142', '100%', '1,142', '51%', '4.6%'],
+      ['Dentists – Canada', 'Created 28 Oct · 4 steps · 6 accounts', 'Completed', '900', '100%', '2,700', '46%', '3.9%'],
+      ['Law firms – UK', 'Created 25 Nov · 3 steps', 'Draft', '1,500', '0%', '—', '—', '—'],
+      ['Webinar invite', 'Created 26 Nov · 1 step', 'Draft', '—', '0%', '—', '—', '—']
+    ].map(([name, meta, status, leads, pct, sent, open, reply]) => ({ name, meta, status, leads, pct, sent, open, reply, bg: S[status][0], fg: S[status][1] }));
+    return { rows };
+  }
+}
+</script>
+</body>
+</html>

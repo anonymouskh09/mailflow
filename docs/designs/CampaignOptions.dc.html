@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Campaign editor – Settings</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F7F7F8;font-family:Inter,system-ui,sans-serif;color:#18181B}
+a{color:#4F46E5;text-decoration:none}a:hover{color:#3730A3}
+.nav{display:flex;align-items:center;gap:10px;min-height:40px;padding:0 12px;border-radius:8px;color:#3F3F46;font-size:14px;font-weight:500}
+.nav:hover{background:#F4F4F5;color:#18181B}.nav.on{background:#EEF2FF;color:#3730A3}
+.card{background:#fff;border:1px solid #E4E4E7;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.btn{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:8px;border:1px solid #E4E4E7;background:#fff;color:#18181B;font:500 14px Inter,sans-serif;cursor:pointer;white-space:nowrap}
+.btn.pri{background:#4F46E5;border-color:#4F46E5;color:#fff}.btn.ico{width:40px;padding:0;justify-content:center}
+.pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12px;font-weight:500}
+.muted{color:#52525B}
+.tab{display:inline-flex;align-items:center;gap:6px;height:44px;padding:0 4px;border-bottom:2px solid transparent;color:#52525B;font-size:14px;font-weight:500}
+.tab.on{border-color:#4F46E5;color:#18181B}
+.lbl{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:#3F3F46}
+.inp{width:100%;box-sizing:border-box;height:40px;padding:0 12px;border:1px solid #E4E4E7;border-radius:8px;font:400 14px Inter,sans-serif;color:#18181B;background:#fff}
+.h2{margin:0;font-size:16px;font-weight:600}
+.day{width:44px;height:40px;border-radius:8px;border:1px solid #E4E4E7;background:#fff;font:500 13px Inter;color:#52525B;cursor:pointer}
+.day.on{background:#4F46E5;border-color:#4F46E5;color:#fff}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid #F0F0F2}
+</style>
+</helmet>
+<div style="display:flex;flex-wrap:wrap;min-height:1120px">
+<aside style="flex:1 1 220px;box-sizing:border-box;padding:20px 12px;background:#fff;border-right:1px solid #E4E4E7;display:flex;flex-direction:column;gap:4px">
+<div style="display:flex;align-items:center;gap:10px;padding:0 12px 20px;font-weight:700;font-size:17px"><span style="width:28px;height:28px;border-radius:8px;background:#4F46E5;display:inline-flex;align-items:center;justify-content:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></span>MailFlow</div>
+<a class="nav" href="Main.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M21 20H3"/></svg>Analytics</a>
+<a class="nav" href="Accounts.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email accounts</a>
+<a class="nav on" href="Campaigns.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>Campaigns</a>
+<a class="nav" href="Unibox.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13L22 12v7H2v-7z"/></svg>Unibox<span class="pill" style="margin-left:auto;background:#4F46E5;color:#fff">12</span></a>
+<div style="flex:1"></div>
+<a class="nav" href="#"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg>Settings</a>
+</aside>
+<main style="flex:999 1 560px;min-width:0;box-sizing:border-box;padding:28px 32px;display:flex;flex-direction:column;gap:16px">
+<div>
+<a href="Campaigns.dc.html" style="font-size:13px;font-weight:500;display:inline-flex;align-items:center;gap:4px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>Campaigns</a>
+<div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:8px">
+<h1 style="margin:0;font-size:24px;font-weight:700">Law firms – UK</h1>
+<span class="pill" style="background:#EEF2FF;color:#3730A3">Draft</span>
+<span class="muted" style="font-size:13px;flex:1 1 auto">Saved 1 min ago</span>
+<button class="btn ico" aria-label="More campaign actions"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
+<button class="btn pri"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>Launch</button>
+</div>
+</div>
+<nav style="display:flex;flex-wrap:wrap;gap:24px;border-bottom:1px solid #E4E4E7">
+<a class="tab" href="#">Leads <span class="muted" style="font-weight:400">1,500</span></a>
+<a class="tab" href="CampaignSequence.dc.html">Sequence</a>
+<a class="tab on" href="CampaignOptions.dc.html" aria-current="page">Settings</a>
+</nav>
+<div style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start">
+<div style="flex:1 1 440px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<section class="card">
+<div style="display:flex;align-items:center;gap:12px"><h2 class="h2" style="flex:1">Sending accounts</h2><span class="muted" style="font-size:13px">6 of 24 selected</span></div>
+<div style="display:flex;gap:8px"><input class="inp" type="search" placeholder="Search accounts or tags" aria-label="Search accounts" style="flex:1"><button class="btn">Select all</button></div>
+<div style="border:1px solid #F0F0F2;border-radius:10px;overflow:hidden">
+<sc-for list="{{accts}}" as="a" hint-placeholder-count="7"><label style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid #F0F0F2;font-size:14px;cursor:pointer;background:{{a.bg}}"><input type="checkbox" checked="{{a.on}}" style="width:16px;height:16px;accent-color:#4F46E5"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">{{a.email}}</span><span class="muted" style="font-size:12px">Warmup <b style="color:{{a.c}}">{{a.score}}</b></span></label></sc-for>
+</div>
+<p class="muted" style="margin:0;font-size:13px">Step 1 rotates across these accounts. Follow-ups always go from the account that sent Step 1.</p>
+</section>
+<section class="card">
+<h2 class="h2">Schedule</h2>
+<div><span class="lbl">Days</span><div style="display:flex;flex-wrap:wrap;gap:6px"><button class="day on">Mon</button><button class="day on">Tue</button><button class="day on">Wed</button><button class="day on">Thu</button><button class="day on">Fri</button><button class="day">Sat</button><button class="day">Sun</button></div></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+<label><span class="lbl">From</span><input class="inp" value="09:00"></label>
+<label><span class="lbl">To</span><input class="inp" value="17:00"></label>
+<label><span class="lbl">Timezone</span><input class="inp" value="Europe/London"></label>
+</div>
+<label><span class="lbl">Start</span><input class="inp" value="As soon as launched"></label>
+</section>
+</div>
+<div style="flex:1 1 380px;min-width:0;display:flex;flex-direction:column;gap:16px">
+<section class="card">
+<h2 class="h2">Pacing</h2>
+<div><span class="lbl">Time between emails (per account)</span><div style="display:flex;align-items:center;gap:8px"><input class="inp" value="8" aria-label="Minimum minutes" style="width:72px;text-align:center"><span class="muted">to</span><input class="inp" value="15" aria-label="Maximum minutes" style="width:72px;text-align:center"><span class="muted" style="font-size:14px">minutes, random</span></div></div>
+<label><span class="lbl">Daily limit for this campaign</span><input class="inp" value="200 emails"></label>
+<div style="padding:12px 14px;border-radius:10px;background:#F7F7F8;font-size:13px;line-height:1.5;color:#3F3F46">About 180 emails a day with 6 accounts (each capped at 30). All 1,500 leads get Step 1 in about 9 working days.</div>
+</section>
+<section class="card" style="gap:0">
+<h2 class="h2" style="margin-bottom:6px">Tracking &amp; rules</h2>
+<sc-for list="{{toggles}}" as="t" hint-placeholder-count="4"><div class="row"><span style="flex:1"><span style="display:block;font-size:14px;font-weight:500">{{t.l}}</span><span class="muted" style="font-size:12px">{{t.d}}</span></span><button role="switch" aria-checked="{{t.on}}" aria-label="{{t.l}}" style="width:40px;height:24px;border-radius:12px;border:0;padding:2px;background:{{t.bg}};display:flex;justify-content:{{t.j}};cursor:pointer;flex:none"><span style="width:20px;height:20px;border-radius:50%;background:#fff"></span></button></div></sc-for>
+<button class="row" style="border-left:0;border-right:0;border-bottom:0;background:none;font:500 14px Inter;color:#4F46E5;cursor:pointer;width:100%;text-align:left">Advanced<span class="muted" style="font-weight:400;font-size:12px;flex:1">New leads per day, priority, plain text, auto-reply rules</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+</section>
+</div>
+</div>
+</main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1120}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const accts = [
+      ['ali@growthmail.co', 98, true], ['sara@growthmail.co', 96, true], ['team@reachly.io', 91, true],
+      ['hello@leadnest.com', 84, true], ['zara@leadnest.com', 88, true], ['dan@growthmail.co', 93, true],
+      ['omar@reachly.io', 72, false]
+    ].map(([email, score, on]) => ({ email, score, on, bg: on ? '#FAFAFF' : '#fff', c: score >= 90 ? '#15803D' : score >= 80 ? '#B45309' : '#B91C1C' }));
+    const toggles = [
+      ['Open tracking', 'Adds an invisible pixel to each email', true],
+      ['Click tracking', 'Routes links through your tracking domain', false],
+      ['Stop on reply', 'Cancel remaining steps when a lead replies', true],
+      ['Unsubscribe link', 'Adds a footer and one-click unsubscribe header', true]
+    ].map(([l, d, on]) => ({ l, d, on, bg: on ? '#4F46E5' : '#D4D4D8', j: on ? 'flex-end' : 'flex-start' }));
+    return { accts, toggles };
+  }
+}
+</script>
+</body>
+</html>
