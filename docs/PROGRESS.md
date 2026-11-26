@@ -37,3 +37,13 @@ Newest entry last. Each phase is verified (typecheck, lint, tests, manual run ag
 - Settings page: tracking domain, timezone, password, SPF/DKIM/DMARC DNS check, suppression list, labels, saved replies, testing delay toggle under Advanced.
 - Tests: 9 inbound tests, 11 API tests (auth, rate limit, tracking, unsubscribe, import, launch validation, preview).
 - Verified against a real SMTP/IMAP server (GreenMail): campaign email delivered; open + click recorded; lead's reply detected 6 s later via IDLE, lead stopped, shown in the Unibox; reply sent from the Unibox arrived in the lead's inbox with the right `In-Reply-To` (same thread) and was saved to Sent; events visible on Analytics within the roll-up interval.
+
+## Phase 4 – Warmup ✅
+
+- Planner (`apps/worker/src/warmup/planner.ts`): once a day per account, target = start volume + increase × days (capped at max, weekends reduced, working days honoured), spread at random times over 08:00–20:00 in the app timezone; recipients are random other pool accounts, cross-domain preferred (same domain gets ¼ weight), never the same pair twice in a row; nothing runs with fewer than 3 accounts in the pool.
+- Shared daily cap: while an account is in an active campaign, warmup uses at most 30 % of its daily limit (or stops if "keep running during campaigns" is off), and campaign sends get the rest.
+- Sender: neutral content from a built-in spintax library (no links or images), hidden `X-MF-Warmup` header + code in the body, replies in the same thread.
+- Receiver (`receiver.ts`, runs inside the IMAP sync): warmup mail in Inbox is marked read + starred and moved to a hidden `MF-Warmup` folder; warmup mail in Spam/Junk is recorded as a spam hit, marked, and moved back to the Inbox ("not spam"); an in-thread reply is scheduled at the reply rate after a random 10–120 min delay. Warmup mail never reaches campaigns, analytics or the Unibox.
+- Score = share of the account's warmup emails in the last 7 days that landed in the recipient's Inbox; shown with sent / received / saved from spam / replies and a 14-day inbox-vs-spam chart; below 80 shows a warning; campaign Settings shows each account's score.
+- Tests: 6 warmup tests (pool minimum, ramp-up plan and spacing, campaign cap, cross-domain preference, send/receive/reply/score, idempotent receipt).
+- Verified with 5 accounts on a real IMAP server, with today's full plan pulled forward: 15 warmup emails sent and received, all marked read + starred and filed in MF-Warmup; one email placed in Junk was rescued and counted as spam; 2 replies sent in thread; every account shows a score. A real 7-day unattended run still has to happen on the VPS.

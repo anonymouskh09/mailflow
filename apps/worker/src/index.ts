@@ -1,5 +1,6 @@
 import { Queue, Worker, type Job } from 'bullmq';
 import IORedis from 'ioredis';
+import { writeFileSync } from 'node:fs';
 import { env } from '@mailflow/core';
 import { prisma } from '@mailflow/db';
 import { log } from './log.js';
@@ -25,6 +26,9 @@ const JOBS: { name: string; every: number; run: (job: Job) => Promise<unknown> }
     name: 'send',
     every: 30_000,
     run: async () => {
+      try {
+        writeFileSync('/tmp/mf-worker-heartbeat', String(Date.now())); // container health check
+      } catch {}
       const r = await tick();
       if (r.sent || r.failed) log('info', 'send tick', { ...r });
       const w = await sendDueWarmups();

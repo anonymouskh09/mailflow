@@ -1,0 +1,24 @@
+# Certificates are issued automatically by Let's Encrypt (ports 80 and 443 must be open).
+
+# Dashboard + API (HTTPS certificates from Let's Encrypt are automatic)
+{$APP_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy web:3000
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+	}
+}
+
+# Tracking domain: only the public tracking routes, nothing else
+{$TRACKING_DOMAIN} {
+	@tracking path /o/* /c/* /u/*
+	handle @tracking {
+		reverse_proxy web:3000
+	}
+	handle {
+		respond "Not found" 404
+	}
+}

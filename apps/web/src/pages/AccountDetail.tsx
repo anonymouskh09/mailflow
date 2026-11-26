@@ -220,6 +220,11 @@ export default function AccountDetail() {
                 <input className="inp" inputMode="numeric" value={w.replyRate} onChange={ws('replyRate')} />
               </Field>
             </div>
+            {w.enabled && data.warmup.poolSize < 3 && (
+              <p role="alert" className="mb-0 mt-3 rounded-lg bg-[#FEF3C7] px-3 py-2 text-[13px] text-[#92400E]">
+                Warmup starts once at least 3 active accounts have it switched on ({data.warmup.poolSize} now). 5–10 accounts on different domains work best.
+              </p>
+            )}
             <p className="mb-0 mt-3 text-[13px] text-muted">
               {w.enabled ? `Today's target: ${data.warmup.todayTarget} warmup emails. ` : 'Warmup is off. '}
               {w.keepDuringCampaigns ? 'Warmup keeps running alongside campaigns.' : 'Warmup pauses while this account is in an active campaign.'}

@@ -79,7 +79,8 @@ async function warmupInfo(accountId: string) {
   const daily = await warmupDaily(accountId, now, s.defaultTimezone, 14);
   const w = a.warmup;
   const target = w?.enabled ? warmupTarget(w, warmupDayIndex(w.startedOn, now, s.defaultTimezone), zonedParts(now, s.defaultTimezone).weekday) : 0;
-  return { settings: publicAccount(a).warmup, stats, daily, todayTarget: target };
+  const poolSize = await prisma.account.count({ where: { status: 'active', warmup: { enabled: true } } });
+  return { settings: publicAccount(a).warmup, stats, daily, todayTarget: target, poolSize };
 }
 
 export async function accountRoutes(app: FastifyInstance) {

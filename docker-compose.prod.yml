@@ -1,0 +1,84 @@
+# Production: docker compose -f docker-compose.prod.yml up -d --build
+# Needs a filled .env next to this file (see .env.example and DEPLOY.md).
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mailflow:${POSTGRES_PASSWORD}@postgres:5432/mailflow}
+      REDIS_URL: redis://redis:6379
+    # migrations run on every start (no-op when up to date)
+    command: sh -c "npx prisma migrate deploy --schema packages/db/prisma/schema.prisma && node --import tsx apps/api/src/index.ts"
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
+
+  worker:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mailflow:${POSTGRES_PASSWORD}@postgres:5432/mailflow}
+      REDIS_URL: redis://redis:6379
+    command: node --import tsx apps/worker/src/index.ts
+    depends_on:
+      web: { condition: service_healthy } # web runs the migrations first
+    healthcheck:
+      # the send loop touches this file every 30 seconds
+      test: ["CMD-SHELL", "find /tmp/mf-worker-heartbeat -mmin -3 | grep -q ."]
+      interval: 60s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: mailflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: mailflow
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mailflow"]
+      interval: 10s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes: [redisdata:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 10
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443", "443:443/udp"]
+    environment:
+      APP_DOMAIN: ${APP_DOMAIN}
+      TRACKING_DOMAIN: ${TRACKING_DOMAIN}
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddydata:/data
+      - caddyconfig:/config
+    depends_on: [web]
+
+volumes:
+  pgdata:
+  redisdata:
+  caddydata:
+  caddyconfig:
