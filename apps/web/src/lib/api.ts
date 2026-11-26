@@ -21,7 +21,12 @@ export async function api<T = any>(path: string, opts: { method?: string; body?:
   if (res.status === 401 && !path.startsWith('/api/auth/')) {
     window.dispatchEvent(new Event('mf:unauthorized'));
   }
-  if (!res.ok) throw new ApiError(res.status, (data && data.error) || res.statusText, data);
+  if (!res.ok) {
+    // A non-JSON 5xx means the dev proxy could not reach the API (it is not running or crashed on start).
+    const unreachable = res.status >= 500 && (data === null || typeof data === 'string');
+    const message = unreachable ? 'Cannot reach the MailFlow API. Check the terminal running "npm run dev" for an [api] error (often a missing ENCRYPTION_KEY in .env or the database not running).' : (data && data.error) || res.statusText;
+    throw new ApiError(res.status, message, data);
+  }
   return data as T;
 }
 
